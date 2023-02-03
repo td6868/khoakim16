@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_company_bank,account.res.company.bank,model_res_company_account_lines,,1,1,1,1
+access_sale_order_invoice_kk,access.sale.order.invoice.kk,model_sale_order_invoice_kk,,1,1,1,1
+access_product_product_create,access.product.product.create,model_product_product_create,,1,1,1,1
+access_product_attrs_create_line,access.product.attrs.create.line,model_product_attrs_create_line,,1,1,1,1
+access_purchase_tags,purchase.tags,model_purchase_tags,,1,1,1,1
+access_sale_order_quick_line,sale.order.quick.line,model_sale_order_quick_line,,1,1,1,1
+access_return_order_line,return.order.line,model_return_order_line,,1,1,1,1

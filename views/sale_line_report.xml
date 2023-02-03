@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_line_view_tree" model="ir.ui.view">
+            <field name="name">sale.line.report.tree</field>
+            <field name="model">sale.line.report</field>
+            <field name="arch" type="xml">
+                <tree string="Chi tiết báo giá/ đơn hàng">
+                    <field name="line_type"/>
+                    <field name="product_id"/>
+                    <field name="name"/>
+                    <field name="product_qty"/>
+                    <field name="product_uom"/>
+                    <field name="price_unit"/>
+                    <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
+                           domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id), ('country_id', '=', parent.tax_country_id)]"
+                           context="{'active_test': True}" optional="show"/>
+                    <field name="price_tax" invisible="1"/>
+                    <field name="price_subtotal" invisible="1"/>
+                    <field name="price_total" widget="monetary"/>
+                    <field name="purchase_price"/>
+                    <field name="note"/>
+                    <field name="partner_id"/>
+                    <field name="company_id" invisible="1"/>
+                </tree>
+            </field>
+    </record>
+
+    <record id="view_service_booking_filter" model="ir.ui.view">
+        <field name="name">sale.line.report.filter</field>
+        <field name="model">sale.line.report</field>
+        <field name="arch" type="xml">
+            <search string="Phân tích báo cáo">
+<!--                <field name="name_seq"/>-->
+<!--                <field name="state"/>-->
+                <filter string="Báo giá nhanh" name="quick_order" domain="[('line_type', '=', 'qso_line')]"/>
+                <filter string="Báo giá/Đơn hàng" name="sale_order" domain="[('line_type', '=', 'so_line')]"/>
+<!--                <group string="Nhóm dữ liệu" expand="0" name="groupby">-->
+<!--                    <filter string="Phiếu thị trường" context="{'group_by':'name_seq'}" name="group_name_seq"/>-->
+<!--                    <filter string="Xe sửa chữa" context="{'group_by':'vehicle_id'}" name="group_vehicle_id"/>-->
+<!--                    <filter string="Loại sản phẩm" context="{'group_by':'type'}" name="group_type"/>-->
+<!--                    <filter string="Ngày sửa chữa" context="{'group_by':'request_date'}" name="group_request_date"/>-->
+<!--                    <filter string="Ngày kết thúc" context="{'group_by':'finish_date'}" name="group_finish_date"/>-->
+<!--                    <filter string="Trạng thái phiếu" context="{'group_by':'state'}" name="group_state"/>-->
+<!--                    <filter string="Loại phiếu" context="{'group_by':'type_service'}" type="row" name="group_type_service"/>-->
+<!--&lt;!&ndash;                        <filter string="Khách hàng" context="{'group_by':'driver'}" name="group_driver"/>&ndash;&gt;-->
+<!--                    <filter string="Lý do thất bại" context="{'group_by':'reason'}" name="group_reason"/>-->
+<!--                    <filter string="Hình thức thanh toán" context="{'group_by':'type_check_out'}" name="group_type_check_out"/>-->
+<!--                </group>-->
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sale_order_line_view" model="ir.actions.act_window">
+        <field name="name">Chi tiết báo giá/ đơn hàng</field>
+        <field name="res_model">sale.line.report</field>
+        <field name="type">ir.actions.act_window</field>
+<!--        <field name="view_type">form</field>-->
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="sale_line_view_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Thêm bản ghi mới
+            </p>
+        </field>
+    </record>
+
+    <menuitem name="Chi tiết đơn hàng" id="menu_sale_order_line"
+              sequence="5" parent="sale.menu_report_sales" action="action_sale_order_line_view"/>
+
+</odoo>

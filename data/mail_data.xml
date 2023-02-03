@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_act_sale_approval_kk" model="mail.activity.type">
+            <field name="name">Duyệt báo giá</field>
+            <field name="icon">fa-line-chart</field>
+            <field name="res_model">sale.order</field>
+<!--            <field name="res_model_id" ref="khoakim_customize.model_sale_order"/>-->
+        </record>
+
+        <record id="A4_landscape_perform_print" model="report.paperformat">
+            <field name="name">A4L</field>
+            <field name="format">A4</field>
+            <field name="orientation">Landscape</field>
+        </record>
+
+        <record id="purchase.seq_purchase_order" model="ir.sequence">
+          <field name="prefix">KK</field>
+        </record>
+
+        <record id="return_cost" model="product.template">
+            <field name="name">Trả hàng</field>
+            <field name="detailed_type">service</field>
+            <field name="default_code">RETURN_CASH</field>
+        </record>
+
+    </data>
+</odoo>

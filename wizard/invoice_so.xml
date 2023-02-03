@@ -1,0 +1,22 @@
+<odoo>
+       <record id="view_sale_order_create_inv" model="ir.ui.view">
+            <field name="name">Tạo hoá đơn</field>
+            <field name="model">sale.order.invoice.kk</field>
+            <field name="arch" type="xml">
+                <form string="Ghi nhận công nợ khách hàng">
+                    <p>
+                        Vui lòng chọn phương thức thanh toán và phương thức giao hàng của khách hàng?
+                    </p>
+                    <field name="shipping_method"/>
+                    <footer>
+                        <button name="action_inv_payment" string="Thanh toán trực tiếp" type="object"
+                            class="btn-success"/>
+                        <button name="action_debt_inv_payment" string="Công nợ" type="object"
+                            class="btn-primary"/>
+                        <button string="Huỷ bỏ" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+</odoo>

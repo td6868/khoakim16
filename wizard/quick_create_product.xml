@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+       <record id="view_product_create_quick" model="ir.ui.view">
+            <field name="name">Tạo sản phẩm nhanh</field>
+            <field name="model">product.product.create</field>
+            <field name="arch" type="xml">
+                <form string="Tạo sản phẩm nhanh">
+                    <p>
+                        Vui lòng hoàn thiện để tạo sản phẩm mới
+                    </p>
+                    <group>
+<!--                        <lable for="catg_prod_id"/>-->
+                        <group>
+                            <field name="catg_prod_id"/>
+                        </group>
+                        <group>
+                            <field name="prod_code"/>
+                        </group>
+                        <group>
+                            <field name="purchase_price"/>
+                        </group>
+                    </group>
+                    <group>
+                        <notebook>
+                            <page name="variants" string="Thuộc tính và Biến thể">
+                                <field name="attrs_line_ids" widget="one2many" context="{'show_attribute': False}">
+                                    <tree string="Biến thể" editable="bottom">
+                                        <field name="attribute_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                        <field name="value_ids" widget="many2many_tags"
+                                               options="{'no_create_edit': True, 'color_field': 'color'}"
+                                               context="{'default_attribute_id': attribute_id, 'show_attribute': False}"/>
+<!--                                        <button string="Cấu hình" class="float-right btn-secondary"-->
+<!--                                                type="object" name="action_open_attribute_values"/>-->
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+                    <footer>
+                        <button name="create_product" string="Xác nhận" type="object"
+                            class="btn-success"/>
+<!--                        <button name="action_debt_inv_payment" string="Công nợ" type="object"-->
+<!--                            class="btn-primary"/>-->
+                        <button string="Huỷ bỏ" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+</odoo>

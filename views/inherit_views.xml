@@ -1,0 +1,994 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_order_image_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.sale.image</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page/field[@name='order_line']/.." position="after">
+                <page string="Báo giá nhanh" name="quick_order_line">
+                    <field name="order_quick_ids" mode="tree,form,kanban">
+                        <tree string="Báo giá nhanh" editable="bottom">
+                            <field name="is_display"/>
+                            <field name="seq_cus"/>
+                            <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"  class="img img-fluid w-50"/>
+                            <field name="name"/>
+                            <field name="product_qty"/>
+                            <field name="product_uom"/>
+                            <field name="price_unit"/>
+                            <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
+                                   domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id), ('country_id', '=', parent.tax_country_id)]"
+                                   context="{'active_test': True}" optional="show"/>
+                            <field name="price_tax" invisible="1"/>
+                            <field name="price_subtotal" invisible="1"/>
+                            <field name="price_total" widget="monetary"/>
+                            <field name="purchase_price"/>
+                            <field name="note"/>
+                            <field name="company_id" invisible="1"/>
+                            <button name="button_add_product" class="btn btn-link oe_link fa fa-shopping-cart" title="Thêm vào đơn hàng" type="object"/>
+                        </tree>
+                        <form string="Báo giá nhanh">
+                            <group>
+                                <field name="is_display"/>
+                                <field name="name"/>
+                                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
+                                <field name="product_qty"/>
+                                <field name="product_uom"/>
+                                <field name="price_unit"/>
+                                <field name="tax_id"/>
+                                <field name="price_tax" invisible="1"/>
+                                <field name="price_subtotal" invisible="1"/>
+                                <field name="price_total"/>
+                                <field name="purchase_price"/>
+                                <field name="note"/>
+                                <field name="company_id" invisible="1"/>
+                            </group>
+                        </form>
+<!--                        <kanban class="o_kanban_mobile">-->
+<!--                            <field name="name"/>-->
+<!--                            <field name="product_qty"/>-->
+<!--                            <field name="product_uom"/>-->
+<!--                            <field name="price_unit"/>-->
+<!--                            <field name="price_total"/>-->
+<!--                            <template>-->
+<!--                                <t t-name="kanban-box">-->
+<!--                                    <div class="oe_kanban_card oe_kanban_global_click">-->
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12">-->
+<!--                                                <strong>-->
+<!--                                                    <span>-->
+<!--                                                        <t t-esc="record.name.value"/>-->
+<!--                                                    </span>-->
+<!--                                                </strong>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Số lượng:-->
+<!--                                                    <t t-esc="record.product_qty.value"/>-->
+<!--                                                    <t t-esc="record.product_uom.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Đơn giá:-->
+<!--                                                    <t t-esc="record.price_unit.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Thành tiền:-->
+<!--                                                    <t t-esc="record.price_total.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                            </template>-->
+<!--                        </kanban>-->
+                    </field>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="quick_sale_order">
+                        <div class="oe_inline o_td_label">
+                            <label for="quick_subtotal_amount"/>
+                        </div>
+                        <field name="quick_subtotal_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <div class="o_td_label">
+                            <label for="quick_tax_amount"/>
+                        </div>
+                        <field name="quick_tax_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="quick_total_amount"/>
+                        </div>
+                        <field name="quick_total_amount" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </page>
+                <page string="Hàng trả về" name="return_order_line">
+                    <field name="return_order_ids" mode="tree,form,kanban" readonly="1">
+                        <tree string="Chi tiết trả về">
+                            <field name="order_id" invisible="1"/>
+                            <field name="picking_id" invisible="1"/>
+                            <field name="date_done"/>
+                            <field name="product_id"/>
+                            <field name="product_qty"/>
+                            <field name="product_uom"/>
+                            <field name="price_unit"/>
+                            <field name="price_tax"/>
+                            <field name="total_amount" widget="monetary"/>
+                            <field name="purchase_price" optional="hide"/>
+                            <field name="done_return" invisible="1"/>
+                        </tree>
+                        <form string="Chi tiết trả về" readonly="1">
+                            <group>
+                                <field name="order_id" invisible="1"/>
+                                <field name="picking_id" invisible="1"/>
+                                <field name="date_done"/>
+                                <field name="product_id"/>
+                                <field name="product_qty"/>
+                                <field name="product_uom"/>
+                                <field name="price_unit"/>
+                                <field name="price_tax"/>
+                                <field name="total_amount" widget="monetary"/>
+                                <field name="purchase_price" optional="hide"/>
+                                <field name="done_return" invisible="1"/>
+                            </group>
+                        </form>
+<!--                        <kanban class="o_kanban_mobile">-->
+<!--                            <field name="name"/>-->
+<!--                            <field name="product_qty"/>-->
+<!--                            <field name="product_uom"/>-->
+<!--                            <field name="price_unit"/>-->
+<!--                            <field name="price_total"/>-->
+<!--                            <template>-->
+<!--                                <t t-name="kanban-box">-->
+<!--                                    <div class="oe_kanban_card oe_kanban_global_click">-->
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12">-->
+<!--                                                <strong>-->
+<!--                                                    <span>-->
+<!--                                                        <t t-esc="record.name.value"/>-->
+<!--                                                    </span>-->
+<!--                                                </strong>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Số lượng:-->
+<!--                                                    <t t-esc="record.product_qty.value"/>-->
+<!--                                                    <t t-esc="record.product_uom.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Đơn giá:-->
+<!--                                                    <t t-esc="record.price_unit.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                        <div class="row">-->
+<!--                                            <div class="col-12 text-muted">-->
+<!--                                                <span>-->
+<!--                                                    Thành tiền:-->
+<!--                                                    <t t-esc="record.price_total.value"/>-->
+<!--                                                </span>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                            </template>-->
+<!--                        </kanban>-->
+                    </field>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="quick_sale_order">
+                        <div class="oe_inline o_td_label">
+                            <label for="quick_subtotal_amount"/>
+                        </div>
+                        <field name="quick_subtotal_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <div class="o_td_label">
+                            <label for="quick_tax_amount"/>
+                        </div>
+                        <field name="quick_tax_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="quick_total_amount"/>
+                        </div>
+                        <field name="quick_total_amount" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <xpath expr="//page[@name='order_lines']//group[@name='note_group']" position="after">
+                <group class="oe_subtotal_footer oe_right oe_subtotal_footer_separator" name="all_quick_sale_order">
+                    <div class="oe_inline o_td_label">
+                        <label for="all_subtotal_amount"/>
+                    </div>
+                    <field name="all_subtotal_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <div class="o_td_label">
+                        <label for="all_tax_amount"/>
+                    </div>
+                    <field name="all_tax_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                        <label for="all_total_amount"/>
+                    </div>
+                    <field name="all_total_amount" nolabel="1" widget="monetary" class="oe_subtotal_footer_separator" options="{'currency_field': 'currency_id'}"/>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
+            </xpath>
+
+            <xpath expr="//button[@name='action_preview_sale_order']" position="replace">
+                <button name="%(action_report_saleorder_customize)d" type="action" class="oe_stat_button" icon="fa-globe icon">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">In báo giá</span>
+                    </div>
+                </button>
+                <button name="action_view_price_history" type="object" class="oe_stat_button"
+                        icon="fa-pencil-square-o" attrs="{'invisible': [('partner_id', '=', False)]}">
+                    <span class="o_stat_text">Lịch sử báo giá</span>
+                </button>
+            </xpath>
+
+<!--            <xpath expr="//button[@name='preview_sale_order']" position="replace">-->
+<!--                <button name="%(action_report_saleorder_customize)d" type="action" class="oe_stat_button" icon="fa-globe icon">-->
+<!--                    <div class="o_field_widget o_stat_info">-->
+<!--                        <span class="o_stat_text">In báo giá</span>-->
+<!--                    </div>-->
+<!--                </button>-->
+<!--            </xpath>-->
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='product_id']" position="before">
+                <field name="seq_cus"/>
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+
+<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="attributes">-->
+<!--                <attribute name="readonly">1</attribute>-->
+<!--                <attribute name="force_save">1</attribute>-->
+<!--            </xpath>-->
+<!--            -->
+<!--            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_unit']" position="attributes">-->
+<!--                <attribute name="readonly">1</attribute>-->
+<!--                <attribute name="force_save">1</attribute>-->
+<!--            </xpath>-->
+<!--            -->
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="attributes">-->
+<!--                <attribute name="readonly">1</attribute>-->
+<!--                <attribute name="force_save">1</attribute>-->
+<!--            </xpath>-->
+
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='name']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="replace">-->
+<!--                <field name="new_price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="replace">-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_unit']" position="replace">-->
+<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
+<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
+<!--                <field name="cus_discount"/>-->
+<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='discount']" position="after">-->
+<!--                <field name="cus_discount"/>-->
+<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
+<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
+<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='discount']" position="after">-->
+<!--                <field name="cus_discount"/>-->
+<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
+<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
+<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
+<!--            </xpath>-->
+
+            <xpath expr="//field[@name='order_line']/kanban/templates//t[@t-name='kanban-box']//div[1]//t[1]" position="before">
+<!--                <field name="prod_image" widget="image"/>-->
+                <div class="o_kanban_image">
+                    <img t-att-src="kanban_image('product.template', 'image_1920', record.prod_image.raw_value)" alt="Sản phẩm" class="o_image_64_contain"/>
+                </div>
+            </xpath>
+
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="after">-->
+<!--                <field name="virtual_qty"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']" position="after">-->
+<!--                <field name="virtual_qty"/>-->
+<!--            </xpath>-->
+
+            <xpath expr="//button[@name='action_confirm']" position="replace">
+            </xpath>
+
+            <xpath expr="//field[@name='validity_date']" position="replace">
+                <field name="priority"/>
+                <field name="shipping_method"/>
+                <field name="commitment_date"/>
+                <field name="change_tax" invisible="1"/>
+                <field name="taxes_ids_all" widget="many2many_tags"/>
+            </xpath>
+
+            <xpath expr="//button[@name='action_confirm']" position="replace">
+                <button name="action_quotation_approval" id="customize_sale_approval" string="Xác nhận" class="btn-primary"
+                        type="object" attrs="{'invisible': [('state', 'not in', ['draft', 'approved'])]}"/>
+                <button name="action_accept_approval" string="Xét duyệt" class="btn-success"
+                        groups="khoakim_customize.group_approval_sale_order"
+                        type="object" attrs="{'invisible': [('state', 'not in', ['waiting'])]}"/>
+<!--                <button name="customize_sale_confirm" string="Xác nhận" class="btn-success"-->
+<!--                        groups="khoakim_customize.group_approval_sale_order"-->
+<!--                        type="object" attrs="{'invisible': [('state', 'not in', ['draft'])]}"/>-->
+                <button name="action_deny_approval" string="Từ chối"
+                        groups="khoakim_customize.group_approval_sale_order" class="btn-warning"
+                        type="object" attrs="{'invisible': [('state', 'not in', ['waiting'])]}"/>
+                <button name="action_cancel" id="action_cancel" string="Hủy"
+                        type="object" attrs="{'invisible': [('state', 'not in', ['waiting', 'approved'])]}"/>
+            </xpath>
+
+<!--            <xpath expr="//button[@name='action_quotation_send']" position="replace">-->
+<!--                <button name="notify_so_mess" id="notify_so_mess" string="Test notify"-->
+<!--                        type="object"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//button[@name='update_prices']" position="replace">-->
+<!--                <button name="update_prices_custom" type="object" string=" Cập nhật giá" help="Tính toán lại giá sản theo bảng giá!" class="btn-link mb-1 px-0" icon="fa-refresh" confirm="Cập nhập lại toàn bộ giá theo bảng giá này."-->
+<!--                        attrs="{'invisible': ['|', ('show_update_pricelist', '=', False), ('state', 'in', ['sale', 'done','cancel'])]}"/>-->
+<!--            </xpath>-->
+
+            <xpath expr="//button[@name='action_quotation_send']" position="replace">
+            </xpath>
+
+            <xpath expr="//page[@name='other_information']/group//group[@name='sale_info']//field[@name='fiscal_position_id']" position="before">
+                <field name="total_due"/>
+            </xpath>
+
+            <xpath expr="//field[@name='note']" position="before">
+                <field name="pst_by_word"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='price_subtotal']" position="after">
+                <field name="note"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_subtotal']" position="after">
+                <field name="note"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_order_image_purchase_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.form.image</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='product_id']" position="before">
+                <field name="seq_cus"/>
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="after">
+                <field name="qty_available"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="after">
+                <field name="qty_available"/>
+            </xpath>
+
+<!--            <div class="o_kanban_image">-->
+<!--                <img t-att-src="kanban_image('product.template', 'image_1920', record.prod_image.raw_value)" alt="Sản phẩm" class="o_image_64_contain"/>-->
+<!--            </div>-->
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="before">
+                <field name="declare_ok"/>
+                <field name="brand"/>
+                <field name="color"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="before">
+                <field name="declare_ok"/>
+                <field name="brand" invisible="1"/>
+                <field name="color" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='product_qty']" position="before">
+                <field name="declare_ok"/>
+                <field name="brand" invisible="1"/>
+                <field name="color" invisible="1"/>
+            </xpath>
+            <xpath expr="//button[@name='print_quotation']" position="replace">
+            </xpath>
+            <xpath expr="//button[@name='print_quotation']" position="replace">
+                <button name="%(action_report_purchase_order_customize)d" string="In" type="action" groups="base.group_user" data-hotkey="k"/>
+            </xpath>
+
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='price_subtotal']" position="after">-->
+<!--                <field name="note"/>-->
+<!--            </xpath>-->
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='price_subtotal']" position="after">
+                <field name="note"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_subtotal']" position="after">
+                <field name="note"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="vend_name"/>
+            </xpath>
+            <xpath expr="//page[@name='purchase_delivery_invoice']/group//group[@name='other_info']//field[@name='origin']" position="after">
+                <field name="tag_ids" widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//field[@name='date_order']" position="before">
+                <field name="state_stock_move"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_tree_order_purchase_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.tree.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="vend_name"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="before">
+                <field name="amount_tax"/>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="before">
+                <field name="tag_ids" widget="many2many_tags"/>
+                <field name="state_stock_move" widget="badge"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_attribute_form_inherit" model="ir.ui.view">
+        <field name="name">product.attribute.form.inherit</field>
+        <field name="model">product.attribute</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="sequence"/>
+            </xpath>
+            <xpath expr="//field[@name='value_ids']/tree//field[@name='name']" position="after">
+                <field name="acode"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="create_acc_distributor" type="object" string="Tạo tài khoản"/>
+                    <button name="action_view_price_history_respartner" type="object" string="Đã báo giá"/>
+                </header>
+            </xpath>
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_price_history_respartner" icon="fa-pencil-square-o">
+                    <span class="o_stat_text">Lịch sử báo giá</span>
+                </button>
+            </div>
+            <xpath expr="//field[@name='mobile']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="before">
+                <field name="roles"/>
+            </xpath>
+            <group name="purchase" position="inside">
+                <field name="type_vend"/>
+                <field name="vend_code" attrs="{'invisible': [('type_vend', '=', False)], 'required': [('type_vend', '=', True)]}"/>
+            </group>
+        </field>
+    </record>
+
+    <record id="view_res_company_form_inherit" model="ir.ui.view">
+        <field name="name">res.company.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_info']/group/group[1]" position="after">
+                <group string="Quản lý Đồng bộ Woocommerce">
+                    <field name="wp_url"/>
+                    <field name="wp_user"/>
+                    <field name="wp_pass"/>
+                    <field name="woo_ck"/>
+                    <field name="woo_cs"/>
+                </group>
+                <group string="Quản lý mua hàng">
+                    <field name="purc_comp_id"/>
+                    <field name="purc_amount"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='general_info']" position="after">
+                <page string="Tài khoản ngân hàng" name="banks_information">
+                    <group string="Thông tin tài khoản ngân hàng">
+                        <field name="account_lines" nolabel="1" widget="section_and_note_one2many" mode="tree">
+                            <tree string="Thông tin tài khoản" editable="bottom">
+                                <field name="company_id" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                                <field name="qr_code" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+                                <field name="bank_id"/>
+                                <field name="branch"/>
+                                <field name="type"/>
+                                <field name="acc_holder"/>
+                                <field name="acc_number"/>
+                            </tree>
+                            <form>
+                                <field name="company_id" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                                <field name="qr_code" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+                                <field name="bank_id"/>
+                                <field name="branch"/>
+                                <field name="type"/>
+                                <field name="acc_holder"/>
+                                <field name="acc_number"/>
+                            </form>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_produtc_form_inherit" model="ir.ui.view">
+        <field name="name">product.product.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+<!--            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">-->
+<!--                <button name="test_attrs" type="object" string="Test A"/>-->
+<!--            </xpath>-->
+            <xpath expr="//div[@name='options']" position="after">
+                <div>
+                    <field name="url_img" label="URL"/>
+                    <field name="sku_wp" invisible="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='default_code']" position="replace">
+                <field name="prod_code" attrs="{'required': [('detailed_type', '=', 'product')]}"/>
+                <field name="default_code" force_save="1" readonly="1"/>
+            </xpath>
+<!--            <xpath expr="//field[@name='available_in_pos']" position="after">-->
+<!--                <field name="wp_ok"/>-->
+<!--            </xpath>-->
+            <xpath expr="//group[@name='description']" position="before">
+                <group name="url_image" position="before">
+                    <field name="url_img2"/>
+                    <field name="url_img3"/>
+                    <field name="url_img4"/>
+                    <field name="url_img5"/>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='taxes_id']" position="after">
+                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                <field name="is_change_ep" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_product_product_easy_edit_form_inherit" model="ir.ui.view">
+        <field name="name">product.product.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="arch" type="xml">
+<!--            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">-->
+<!--                <button name="test_attrs" type="object" string="Test A"/>-->
+<!--            </xpath>-->
+            <xpath expr="//field[@name='standard_price']" position="before">
+                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                <field name="is_change_ep" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_variant_product_inherit" model="ir.ui.view">
+        <field name="name">product.product.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lst_price']" position="replace">
+                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_produtc_form_temp_inherit" model="ir.ui.view">
+        <field name="name">product.template.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='options']" position="after">
+                <div>
+                    <field name="url_img" label="URL"/>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='default_code']" position="replace">
+                <field name="prod_code"/>
+                <field name="default_code" force_save="1" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='barcode']" position="after">
+                <field name="wp_ok"/>
+                <field name="appr_state" invisible="1"/>
+            </xpath>
+
+<!--            <field name="purchase_ok" position="attributes">-->
+<!--                <attribute name="groups">khoakim_customize.group_approval_product_temp</attribute>-->
+<!--            </field>-->
+<!--            <field name="sale_ok" position="attributes">-->
+<!--                <attribute name="groups">khoakim_customize.group_approval_product_temp</attribute>-->
+<!--            </field>-->
+
+            <xpath expr="//button[@name='action_open_label_layout']" position="before">
+                <button name="prod_temp_approvaled" class="btn-success"
+                        type="object" string="Duyệt" attrs="{'invisible': [('appr_state', '=', True)]}"
+                        groups="khoakim_customize.group_approval_product_temp"/>
+                <button name="prod_temp_deny" class="btn-warning" type="object"
+                        string="Không duyệt" attrs="{'invisible': [('appr_state', '=', True)]}"
+                        groups="khoakim_customize.group_approval_product_temp"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_product_product_kanban_inherit" model="ir.ui.view">
+        <field name="name">product.product.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='tags']" position="before">
+                <ul>
+                    <li><strong>Giá niêm yết: <field name="extra_price"/></strong></li>
+                </ul>
+                <ul>
+                    <li><strong>Thực tế: <field name="qty_available"/> sản phẩm</strong></li>
+                </ul>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_category_form_inherit" model="ir.ui.view">
+        <field name="name">product.category.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="ccode"/>
+                <field name="cate_code"/>
+                <field name="cate_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_category_tree_inherit" model="ir.ui.view">
+        <field name="name">product.category.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_list_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='display_name']" position="after">
+                <field name="ccode"/>
+                <field name="cate_code"/>
+            </xpath>
+<!--            <xpath expr="//field[@name='categ_id']" position="after">-->
+<!--                <field name="wp_ok"/>-->
+<!--            </xpath>-->
+        </field>
+    </record>
+
+    <record id="view_product_pricelist_tree_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist.inherit</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+<!--                    <button name="action_update_price" type="object" string="Đồng bộ bảng giá" attrs="{'invisible': [('type_pl', '!=', 'policy')]}"/>-->
+<!--                    <button name="action_update_main_price" type="object" string="Đồng bộ bảng giá" attrs="{'invisible': [('type_pl', '!=', 'main')]}"/>-->
+                </header>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_pricelist" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('count_pl', '=', 0)]}">
+                        <field name="count_pl" widget="statinfo" string="Sản phẩm"/>
+                    </button>
+                </div>
+            </xpath>
+            <xpath expr="//group[@name='pricelist_settings']" position="inside">
+                <field name="roles" attrs="{'invisible': [('type_pl', '!=', 'policy')], 'required': [('type_pl', '=', 'policy')]}"/>
+            </xpath>
+            <xpath expr="//group[@name='pricelist_settings']" position="after">
+                <group name="pricelist_st">
+                    <field name="type_pl"/>
+<!--                    <field name="def_pl_id" attrs="{'invisible': [('type_pl', '!=', 'policy')], 'required': [('type_pl', '=', 'policy')]}"/>-->
+<!--                    <field name="discount" attrs="{'invisible': [('type_pl', '!=', 'policy')], 'required': [('type_pl', '=', 'policy')]}"/>-->
+                </group>
+<!--                <group name="catg_id">-->
+<!--                    <field name="catg_id"/>-->
+<!--                    <field name="type_dics"/>-->
+<!--                </group>-->
+<!--                <group name="catg_disc">-->
+<!--                    <field name="catg_disc"/>-->
+<!--                    <button name="action_price_categ" string="Cập nhật giá" type="object" class="btn-warning"/>-->
+<!--                </group>-->
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_picking_form_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="replace">
+                <button name="action_check_out_wh" attrs="{'invisible': [('show_mark_as_todo', '=', False)]}" string="Xác nhận phiếu"
+                        type="object" class="oe_highlight" groups="base.group_user"/>
+            </xpath>
+            <button name='%(stock.action_report_delivery)d' position="replace">
+                <button name="%(action_report_stock_pick_customize)d" string="In" type="action"/>
+            </button>
+            <button name='do_print_picking' position="replace">
+            </button>
+            <button name='action_set_quantities_to_reservation' position="replace">
+            </button>
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']/tree//field[@name='product_id']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']/form//field[@name='product_id']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_stock_move_line_form_inherit" model="ir.ui.view">
+        <field name="name">stock.move.line.inherit</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_stock_move_line_detailed_operation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="before">
+                <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+            <xpath expr="//field[@name='product_uom_id']" position="after">
+                <field name="price_unit" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                <field name="price_tax" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="vpicktree_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_stock_quant_tree_inventory_editable_inherit" model="ir.ui.view">
+        <field name="name">	stock.quant.inventory.tree.editable.inherit</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_inventory_editable"/>
+        <field name="arch" type="xml">
+            <button name="action_apply_inventory" position="replace">
+                <button name="action_apply_inventory" groups="khoakim_customize.group_approval_change_stock_temp"
+                        type="object" string="Áp dụng" class="btn btn-link" icon="fa-save"
+                        attrs="{'invisible': [('inventory_quantity_set', '=', False)]}"/>
+            </button>
+        </field>
+    </record>
+
+    <record id="view_account_move_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='price_subtotal']" position="after">
+                <field name="note" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='price_subtotal']" position="after">
+                <field name="note" optional="hide"/>
+            </xpath>
+
+            <xpath expr="//field[@name='invoice_line_ids']/tree//field[@name='product_id']" position="before">
+                <field name="seq_cus"/>
+            </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='product_id']" position="before">
+                <field name="seq_cus"/>
+            </xpath>
+
+            <xpath expr="//field[@name='invoice_date']" position="before">
+                <field name="priority_so"/>
+            </xpath>
+
+            <xpath expr="//field[@name='narration']" position="before">
+                <field name="pst_by_word"/>
+            </xpath>
+
+            <button name="action_invoice_sent" position="replace">
+                <button name="%(action_report_account_move_customize)d" string="In" type="action" class="oe_highlight"/>
+            </button>
+
+            <button name="action_invoice_sent" position="replace">
+            </button>
+
+            <button name="preview_invoice" position="replace">
+            </button>
+
+        </field>
+    </record>
+
+    <record id="view_stock_landed_cost_form_inherit" model="ir.ui.view">
+        <field name="name">stock.landed.cost.inherit</field>
+        <field name="model">stock.landed.cost</field>
+        <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='picking_ids']" position="after">
+                <field name="total_weight"/>
+            </xpath>
+            <xpath expr="//field[@name='cost_lines']/tree//field[@name='split_method']" position="before">
+                <field name="total_weight" invisible="1"/>
+                <field name="provisional"/>
+            </xpath>
+            <xpath expr="//field[@name='cost_lines']/form//field[@name='split_method']" position="before">
+                <field name="total_weight" invisible="1"/>
+                <field name="provisional"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_backorder_confirmation_inherit" model="ir.ui.view">
+        <field name="name">stock_backorder_confirmation_inherit</field>
+        <field name="model">stock.backorder.confirmation</field>
+        <field name="inherit_id" ref="stock.view_backorder_confirmation"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='process']" position="replace">
+                <button name="process" string="Tạo dở dang" type="object" class="btn-success" data-hotkey="q"/>
+            </xpath>
+            <xpath expr="//button[@name='process_cancel_backorder']" position="replace">
+                <button name="process_cancel_backorder" string="Không tạo tạo phần dở dang" type="object" class="btn-danger" attrs="{'invisible': [('show_transfers', '=', True)]}" data-hotkey="w"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_search_view_inherit_kk" model="ir.ui.view">
+        <field name="name">product.template.search.inherit.kk</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='favorites']" position="before">
+                <filter string="Chờ duyệt" name="filter_approval" domain="[('appr_state', '=', False)]"/>
+                <separator/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_search_view_inherit_kk" model="ir.ui.view">
+        <field name="name">purchase.order.search.inherit.kk</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="before">
+                <field name="tag_ids"/>
+            </xpath>
+        </field>
+    </record>
+
+<!--    <record id="view_res_users_signa_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">res.users.signa.inherit</field>-->
+<!--        <field name="model">res.users</field>-->
+<!--        <field name="inherit_id" ref="hr.res_users_view_form_profile"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='signature']" position="after">-->
+<!--                <field name="digit_sign" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--  price list  tree view-->
+    <record model="ir.ui.view" id="view_price_list_item_kk">
+        <field name="name">Chi tiết bảng giá</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="arch" type="xml">
+            <tree string="Chi tiết bảng giá" editable="bottom">
+                <field name="product_tmpl_id" string="Sản phẩm" required="1"/>
+                <field name="product_id" string="Biến thể" groups="product.group_product_variant"
+                       domain="[('product_tmpl_id', '=', product_tmpl_id)]" options="{'no_create':1}"/>
+                <field name="min_quantity" string="Số lượng tối thiệu"/>
+                <field name="fixed_price" string="Giá"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="pricelist_id" invisible="1"/>
+                  <!-- Pricelist ID is here only for related fields to be correctly computed -->
+                <field name="date_start" string="Ngày bắt đầu"/>
+                <field name="date_end" string="Ngày kết thúc"/>
+                <field name="base" invisible="1"/>
+                <field name="applied_on" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--  history orderline  tree view-->
+    <record model="ir.ui.view" id="view_sale_order_line_history_kk">
+        <field name="name">Lịch sử đặt hàng</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <tree string="Chi tiết báo giá/đơn hàng" editable="bottom">
+                <field name="state" string="Trạng thái" readonly="1"/>
+                <field name="product_id" string="Sản phẩm" readonly="1"/>
+                <field name="name" string="Tên sản phẩm" readonly="1"/>
+                <field name="tax_id" string="Thuế" readonly="1" optional="hide"/>
+                <field name="discount" string="Chiết khấu(%)" readonly="1"/>
+                <field name="product_uom_qty" string="Số lượng" readonly="1"/>
+                <field name="product_uom" string="Đơn vị" readonly="1" optional="hide"/>
+                <field name="price_unit" string="Đơn giá" readonly="1"/>
+                <field name="price_subtotal" string="Thành tiền" readonly="1"/>
+                <field name="note" string="Ghi chú" readonly="1" optional="hide"/>
+                <field name="order_id" string="Mã đơn hàng" readonly="1"/>
+                <field name="order_partner_id" widget="res_partner_many2one"
+                                                string="Khách hàng" readonly="1" optional="hide"/>
+                <field name="salesman_id" string="Nhân viên" readonly="1" optional="hide"/>
+                <field name="company_id" string="Công ty" readonly="1" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+<!--    filter-->
+    <record id="view_price_list_item_filter_kk" model="ir.ui.view">
+        <field name="name">product.pricelist.item.search</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm bảng giá">
+                <field name="product_id"/>
+                <field name="product_tmpl_id"/>
+                <separator/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_sale_order_line_filter_kk" model="ir.ui.view">
+        <field name="name">sale.order.line.search</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm sản phẩm">
+                <field name="product_id"/>
+                <field name="order_partner_id"/>
+                <field name="salesman_id"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>
