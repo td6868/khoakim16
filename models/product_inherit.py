@@ -8,6 +8,7 @@ import math
 from woocommerce import API
 from odoo import api, fields, models, _
 from odoo.exceptions import Warning, UserError
+from odoo.tools import config
 import requests
 import base64
 import urllib.request
@@ -993,6 +994,7 @@ class SaleOrderLine(models.Model):
             return True
         self.rename = True
 
+
     # def _compute_amount(self):
     #     vals = {}
     #     for line in self:
@@ -1068,14 +1070,24 @@ class SaleOrder(models.Model):
         all_tax_amount = self.amount_tax + quick_tax_amount
         all_subtotal_amount = self.amount_untaxed + quick_subtotal_amount
         all_total_amount = self.amount_total + quick_total_amount
-
-        self.write({
+        data = {
             'quick_subtotal_amount': quick_subtotal_amount,
             'quick_tax_amount': quick_tax_amount,
             'quick_total_amount': quick_total_amount,
             'all_tax_amount': all_tax_amount,
             'all_subtotal_amount': all_subtotal_amount,
             'all_total_amount': all_total_amount,
+        }
+        self.write(data)
+
+    # số tiền bằng chữ
+    def _compute_subtotal_word(self):
+        pst_by_word = ''
+        if self.amount_total:
+            pst_word = n2w(str(self.all_total_amount / 1000))
+            pst_by_word = pst_word.capitalize() + ' đồng'
+        self.write({
+            "pst_by_word": pst_by_word,
         })
 
     # đổi tên sản phẩm
@@ -1139,15 +1151,6 @@ class SaleOrder(models.Model):
         except:
             pass
 
-    # số tiền bằng chữ
-    def _compute_subtotal_word(self):
-        pst_by_word = ''
-        if self.amount_total:
-            pst_word = n2w(str(self.all_total_amount / 10))
-            pst_by_word = pst_word.capitalize() + ' đồng'
-        self.write({
-            "pst_by_word": pst_by_word,
-        })
 
     @api.onchange("taxes_ids_all")
     def change_taxes_id(self):
@@ -1591,7 +1594,8 @@ class QuickSaleOrderLine(models.Model):
                                                 ('sale', 'Đơn hàng'),
                                                 ('done', 'Đã khóa'),
                                                 ('cancel', 'Đã hủy'),
-                                            ], string='Trạng thái', readonly=True, copy=False, related="order_id.state")
+                                            ], string='Trạng thái', readonly=True,
+                                                copy=False, related="order_id.state")
 
     @api.depends("tax_id", "price_unit", "product_qty")
     def _compute_price_tax_kk(self):
