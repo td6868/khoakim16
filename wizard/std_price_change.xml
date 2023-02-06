@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+       <record id="view_std_price_change" model="ir.ui.view">
+            <field name="name">Thay đổi giá vốn</field>
+            <field name="model">std.price.change</field>
+            <field name="arch" type="xml">
+                <form string="Thay đổi giá vốn">
+                    <p>
+                        Bạn có muốn thay đổi giá vốn theo bảng giá đã quy định?
+                    </p>
+                    <footer>
+                        <button name="change_std_price" string="Xác nhận" type="object"
+                            class="btn-success"/>
+                        <button string="Huỷ bỏ" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+</odoo>

@@ -25,6 +25,7 @@
         # 'views/sale_line_report.xml',
         'wizard/invoice_so.xml',
         'wizard/quick_create_product.xml',
+        'wizard/std_price_change.xml',
         'data/data.xml',
     ],
     "depends": [

@@ -940,19 +940,22 @@ class PurchaseOrderLine(models.Model):
             brand = 'Không có'
             color = 'Không có'
             name = line.product_id.name
-            if line.product_id:
+
+            if line.product_id != False:
                 # virtual_qty = ("%s/%s") % (line.virtual_available, line.qty_available)
-                attrs = line.product_id.product_template_attribute_value_ids
-                if attrs:
-                    # print(attrs)
-                    attr_name = ''
-                    for a in attrs:
-                        if a.attribute_id.sequence == 0:
-                            brand = a.name
-                        if a.attribute_id.sequence == 1:
-                            color = a.name
-                        attr_name += ' ' + a.name + ' '
-                    name = name + '(' + attr_name + ')'
+                continue
+
+            attrs = line.product_id.product_template_attribute_value_ids
+            if attrs:
+                # print(attrs)
+                attr_name = ''
+                for a in attrs:
+                    if a.attribute_id.sequence == 0:
+                        brand = a.name
+                    if a.attribute_id.sequence == 1:
+                        color = a.name
+                    attr_name += ' ' + a.name + ' '
+                name = name + '(' + attr_name + ')'
             line.update({
                 "brand": brand,
                 "color": color,
@@ -1102,16 +1105,20 @@ class SaleOrder(models.Model):
         return name
 
     def apply_all_rename(self):
-        if self.order_line:
-            for line in self.order_line:
-                if line.rename == False:
-                    check_name = line.name.find("[", 0, 2)
-                    if check_name != -1:
-                        new_name = self._new_product_name(line.product_id)
-                        line.write({
-                            "name": new_name,
-                            'rename': True,
-                        })
+        if self.order_line == False:
+            return False
+
+        for line in self.order_line:
+            if line.rename:
+                continue
+
+            check_name = line.name.find("[", 0, 2)
+            if check_name != -1:
+                new_name = self._new_product_name(line.product_id)
+                line.write({
+                    "name": new_name,
+                    'rename': True,
+                })
         return True
 
     # kiem tra chi phí
@@ -1150,7 +1157,6 @@ class SaleOrder(models.Model):
                 i += 1
         except:
             pass
-
 
     @api.onchange("taxes_ids_all")
     def change_taxes_id(self):
@@ -1208,11 +1214,13 @@ class SaleOrder(models.Model):
 
     #kiem tra hoan tien va tra lai
     def check_cash_back(self):
-        if self.invoice_ids:
-            for invoice_id in self.invoice_ids:
-                if invoice_id.state == 'posted' and invoice_id.amount_residual < invoice_id.amount_total:
-                    return True
-        return False
+        if self.invoice_ids == False:
+            return False
+
+        for invoice_id in self.invoice_ids:
+            if invoice_id.state == 'posted' and invoice_id.amount_residual < invoice_id.amount_total:
+                return True
+
 
     #huy don va tra tien
     def cancel_cash_back(self):
@@ -1379,7 +1387,7 @@ class ResCompanyAccountLine(models.Model):
             else:
                 line.name = ''
 
-class ResCompanyCustomize(models.Model):
+class ResCompany(models.Model):
     _inherit = 'res.company'
 
     wp_url = fields.Char(string='Link website')
@@ -1392,6 +1400,28 @@ class ResCompanyCustomize(models.Model):
                                     string='Tài khoản ngân hàng')
     purc_amount = fields.Float(string="Tỷ lệ giá vốn", default=100.0)
     purc_comp_id = fields.Many2one('res.company', string="Công ty mua hàng mặc định", required=True)
+    check_std_price = fields.Boolean(default=False)
+
+    @api.onchange('purc_amount', 'purc_comp_id')
+    def _onchange_check_std_price(self):
+        if self.check_std_price and self.purc_amount != 100.0:
+            self.write({
+                'check_std_price': False,
+            })
+
+    def _check_std_price(self):
+        if self.check_std_price == False:
+            return {
+                'name': _('Thông '),
+                'res_model': 'std.price.change',
+                'view_mode': 'form',
+                'context': {
+                    'active_model': 'res.company',
+                    'active_ids': self.ids,
+                },
+                'target': 'new',
+                'type': 'ir.actions.act_window',
+            }
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
@@ -1640,6 +1670,7 @@ class QuickSaleOrderLine(models.Model):
             'target': 'new',
             'type': 'ir.actions.act_window',
         }
+
 
 # Module tính giá
 
