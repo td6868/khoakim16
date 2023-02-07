@@ -522,10 +522,12 @@
                 </group>
                 <group string="Quản lý mua hàng">
                     <field name="purc_comp_id"/>
-                    <field name="purc_amount"/>
                     <field name="check_std_price" invisible="1"/>
-                    <button name="_check_std_price" type="object" string="Cập nhật giá"
-                            attrs="{'invisible': [('check_std_price', '=', True)]}"/>
+                    <group>
+                        <field name="purc_amount"/>
+                        <button name="action_check_std_price" type="object" string="Cập nhật giá"
+                                attrs="{'invisible': [('check_std_price', '=', True)]}"/>
+                    </group>
                 </group>
             </xpath>
             <xpath expr="//page[@name='general_info']" position="after">

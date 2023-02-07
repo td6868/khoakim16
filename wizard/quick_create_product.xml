@@ -20,7 +20,7 @@
                             <field name="purchase_price"/>
                         </group>
                     </group>
-                    <group>
+                    <group name="product_variants_and_values">
                         <notebook>
                             <page name="variants" string="Thuộc tính và Biến thể">
                                 <field name="attrs_line_ids" widget="one2many" context="{'show_attribute': False}">

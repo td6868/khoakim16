@@ -1409,10 +1409,10 @@ class ResCompany(models.Model):
                 'check_std_price': False,
             })
 
-    def _check_std_price(self):
+    def action_check_std_price(self):
         if self.check_std_price == False:
             return {
-                'name': _('Thông '),
+                'name': _('Cập nhật giá vốn'),
                 'res_model': 'std.price.change',
                 'view_mode': 'form',
                 'context': {
@@ -1572,7 +1572,7 @@ class StockReturnPicking(models.TransientModel):
         # (we have no integration of returns for now)
         new_picking, pick_type_id = super(StockReturnPicking, self)._create_returns()
         picking = self.env['stock.picking'].browse(new_picking)
-        if picking.group_id:
+        if picking.group_id.sale_id:
             order_id = picking.group_id.sale_id
             data = {
                         "order_id": order_id.id,

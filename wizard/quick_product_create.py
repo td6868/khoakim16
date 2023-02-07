@@ -24,7 +24,14 @@ class ProductProductCreate(models.TransientModel):
     prod_code = fields.Char(string='Mã sản phẩm', required=True)
     catg_prod_id = fields.Many2one('product.category', string="Danh mục", required=True)
     default_code = fields.Char(string='Mã sản phẩm', compute="_gen_product_code")
-    purchase_price = fields.Float(string='Giá vốn', required=True, default=lambda self: self.purchase_price)
+
+    def default_pur_price(self):
+        id = self.env.context.get('active_ids')
+        line = self.env['sale.order.quick.line'].browse(id)
+        if line.purchase_price:
+            return line.purchase_price
+
+    purchase_price = fields.Float(string='Giá vốn', required=True, default=lambda self: self.default_pur_price() )
     attrs_line_ids = fields.One2many('product.attrs.create.line', 'line_id', 'Biến thể và thuộc tính')
 
     @api.depends('catg_prod_id', 'prod_code')
