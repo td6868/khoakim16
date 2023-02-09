@@ -46,6 +46,7 @@ class Pricelist(models.Model):
         ('non_policy', 'Không theo chính sách')
     ], string="Loại bảng giá", default='main', required=True)
     # def_pl_id = fields.Many2one('product.pricelist', string="Bảng giá NY", domain=[('type_pl', '=', 'main')])
+    user_id = fields.Many2one('res.user', string="Nhân viên kinh doanh")
     discount = fields.Float(string='Chiết khấu theo bảng giá (%)', tracking=True)
     roles = fields.Selection([
         ('daily1', 'Đại lý cấp 1'),
@@ -149,7 +150,7 @@ class ProductTemplate(models.Model):
         return rec
 
     def purchase_create_temp(self):
-        if self.standard_price > 0.0 and self.env.company.purc_comp_id:
+        if self.env.company.purc_comp_id:
             data = {
                 "name": self.env.company.purc_comp_id.id,
                 "min_qty": 1.0,
@@ -400,7 +401,7 @@ class ProductProduct(models.Model):
         return res
 
     def purchase_create(self):
-        if self.standard_price > 0.0 and self.env.company.purc_comp_id:
+        if self.env.company.purc_comp_id:
             data = {
                 "name": self.env.company.purc_comp_id.id,
                 "min_qty": 1.0,
@@ -521,7 +522,8 @@ class ProductProduct(models.Model):
                                                                  ('pricelist_id.type_pl', '=', 'policy')]
                                                                 )
         main_price = self.env['product.pricelist.item'].search([('product_id', '=', self.id),
-                                                                 ('pricelist_id.type_pl', '=', 'main')], limit=1)
+                                                                 ('pricelist_id.type_pl', '=', 'main')],
+                                                               limit=1)
         price_main = main_price.fixed_price or self.list_price
         all_pu = {'main': price_main,}
         for pl in prod_prices:
@@ -757,7 +759,8 @@ class ResPartnerCustomize(models.Model):
     def create_acc_distributor(self):
         com_id = self.env.company or self.env['res.company'].search([('wp_url', '=', True),
                                                                      ('woo_ck', '=', True),
-                                                                     ('woo_cs', '=', True)], order='id asc', limit=1)
+                                                                     ('woo_cs', '=', True)],
+                                                                    order='id asc', limit=1)
         wp_user = com_id.wp_user
         wp_pass = com_id.wp_pass
         c = string.ascii_lowercase + string.ascii_uppercase + string.digits
@@ -987,7 +990,7 @@ class SaleOrderLine(models.Model):
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="_virtual_qty")
     cus_discount = fields.Float(string='C.Khấu ($)')
     rename = fields.Boolean(string=False)
-    # new_price_unit = fields.Float(string='Giá trước CK', readonly=False)
+    old_price_unit = fields.Float(string='Đơn giá cũ', readonly=False)
     low_price = fields.Boolean(default=False)
     note = fields.Char(string='Ghi chú')
 
@@ -1101,7 +1104,7 @@ class SaleOrder(models.Model):
             attr_name = ''
             for a in attr_prod:
                 attr_name += a.name + ' '
-            name = name + ' ( ' + attr_name + ')'
+            name = name + ' ( ' + attr_name + ' )'
         return name
 
     def apply_all_rename(self):

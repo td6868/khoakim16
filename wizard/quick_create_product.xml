@@ -17,6 +17,9 @@
                             <field name="prod_code"/>
                         </group>
                         <group>
+                            <field name="vendor_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group>
                             <field name="purchase_price"/>
                         </group>
                     </group>

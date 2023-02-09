@@ -31,6 +31,7 @@ class ProductProductCreate(models.TransientModel):
         if line.purchase_price:
             return line.purchase_price
 
+    vendor_id = fields.Many2one('res.partner', string='Nhà cung cấp')
     purchase_price = fields.Float(string='Giá vốn', required=True, default=lambda self: self.default_pur_price() )
     attrs_line_ids = fields.One2many('product.attrs.create.line', 'line_id', 'Biến thể và thuộc tính')
 
@@ -59,7 +60,10 @@ class ProductProductCreate(models.TransientModel):
     def get_infor_product(self):
         id = self.env.context.get('active_ids')
         line = self.env['sale.order.quick.line'].browse(id)
-        attrs_line = [self.attrs_line_ids.attribute_id, self.attrs_line_ids.value_ids]
+        if self.attrs_line_ids:
+            attrs_line = [self.attrs_line_ids.attribute_id, self.attrs_line_ids.value_ids]
+        else:
+            attrs_line = False
         data = {
                     "sale_ok": True,
                     "purchase_ok": True,
@@ -83,11 +87,12 @@ class ProductProductCreate(models.TransientModel):
 
     def _create_product(self, data, attrs_line):
         prod_temp = self.env['product.template']
-        attrs = {
-            "attribute_id": attrs_line[0].id,
-            "value_ids": [(6, 0, attrs_line[1].ids)],
-        }
-        data["attribute_line_ids"] = [(0, 0, attrs)]
+        if attrs_line:
+            attrs = {
+                "attribute_id": attrs_line[0].id,
+                "value_ids": [(6, 0, attrs_line[1].ids)],
+            }
+            data["attribute_line_ids"] = [(0, 0, attrs)]
         prod_id = prod_temp.create(data)
         return prod_id
 
@@ -108,3 +113,11 @@ class ProductProductCreate(models.TransientModel):
                 "is_display": False,
                 "product_id": prod_id.product_variant_id.id,
             })
+            if self.vendor_id:
+                prod_id.update({
+                    "name": self.vendor_id.id,
+                    "min_qty": 1.0,
+                    "price": self.purchase_price,
+                    "sequence": 1,
+                    "product_id": prod_id.id,
+                })
