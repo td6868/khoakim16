@@ -276,19 +276,20 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
             </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="replace">-->
-<!--                <field name="new_price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
-<!--            </xpath>-->
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="replace">
+                <field name="old_price_unit"/>
+                <field name="price_unit" invisible="1"/>
+            </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="replace">-->
-<!--            </xpath>-->
+            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="replace">
+                <field name="old_price_unit"/>
+                <field name="price_unit" invisible="1"/>
+            </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_unit']" position="replace">-->
-<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
-<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
-<!--                <field name="cus_discount"/>-->
-<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
-<!--            </xpath>-->
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_unit']" position="replace">
+                <field name="old_price_unit"/>
+                <field name="price_unit" invisible="1"/>
+            </xpath>
 
 <!--            <xpath expr="//field[@name='order_line']/form//field[@name='discount']" position="after">-->
 <!--                <field name="cus_discount"/>-->
@@ -729,7 +730,7 @@
             <xpath expr="//group[@name='pricelist_settings']" position="after">
                 <group name="pricelist_st">
                     <field name="type_pl"/>
-                    <field name="user_id" widget="many2one_avatar_user"/>
+<!--                    <field name="user_id"/>-->
 <!--                    <field name="def_pl_id" attrs="{'invisible': [('type_pl', '!=', 'policy')], 'required': [('type_pl', '=', 'policy')]}"/>-->
 <!--                    <field name="discount" attrs="{'invisible': [('type_pl', '!=', 'policy')], 'required': [('type_pl', '=', 'policy')]}"/>-->
                 </group>
@@ -888,6 +889,17 @@
         </field>
     </record>
 
+<!--    <record id="product_supplierinfo_tree_view_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product_supplierinfo_tree_view_inherit</field>-->
+<!--        <field name="model">product.supplierinfo</field>-->
+<!--        <field name="inherit_id" ref="product.product_supplierinfo_tree_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <tree position="attributes">-->
+<!--                <attribute name="editable">bottom</attribute>-->
+<!--            </tree>-->
+<!--        </field>-->
+<!--    </record>-->
+
     <record id="product_template_search_view_inherit_kk" model="ir.ui.view">
         <field name="name">product.template.search.inherit.kk</field>
         <field name="model">product.template</field>
@@ -919,6 +931,25 @@
 <!--            <xpath expr="//field[@name='signature']" position="after">-->
 <!--                <field name="digit_sign" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>-->
 <!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--  purchase vendor tree view-->
+<!--    <record model="ir.ui.view" id="view_price_purchase_list_supplier_kk">-->
+<!--        <field name="name">Chi tiết bảng giá vốn</field>-->
+<!--        <field name="model">product.supplierinfo</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <tree string="Chi tiết bảng giá vốn" editable="bottom">-->
+<!--                <field name="partner_id" string="Nhà cung cấp"/>-->
+<!--                <field name="product_tmpl_id" string="Sản phẩm"/>-->
+<!--                <field name="product_id" string="Biến thế sản phẩm"/>-->
+<!--                <field name="product_uom" string="Đơn vị tính"/>-->
+<!--                <field name="price" string="Giá"/>-->
+<!--                <field name="currency_id" string="ĐVT"/>-->
+<!--                <field name="delay" string="Thời gian giao hàng"/>-->
+<!--                <field name="min_qty" string="Số lượng"/>-->
+<!--                <field name="company_id" string="Công ty"/>-->
+<!--            </tree>-->
 <!--        </field>-->
 <!--    </record>-->
 
@@ -978,6 +1009,19 @@
             <search string="Tìm kiếm bảng giá">
                 <field name="product_id"/>
                 <field name="product_tmpl_id"/>
+                <separator/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_price_price_purchase_filter_kk" model="ir.ui.view">
+        <field name="name">product.supplierinfo.search</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm">
+                <field name="product_id"/>
+                <field name="product_tmpl_id"/>
+                <field name="partner_id"/>
                 <separator/>
             </search>
         </field>

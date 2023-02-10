@@ -32,7 +32,7 @@ class ProductProductCreate(models.TransientModel):
             return line.purchase_price
 
     vendor_id = fields.Many2one('res.partner', string='Nhà cung cấp')
-    purchase_price = fields.Float(string='Giá vốn', required=True, default=lambda self: self.default_pur_price() )
+    purchase_price = fields.Float(string='Giá vốn', required=True, default=lambda self: self.default_pur_price())
     attrs_line_ids = fields.One2many('product.attrs.create.line', 'line_id', 'Biến thể và thuộc tính')
 
     @api.depends('catg_prod_id', 'prod_code')
@@ -113,11 +113,12 @@ class ProductProductCreate(models.TransientModel):
                 "is_display": False,
                 "product_id": prod_id.product_variant_id.id,
             })
+            vendor_data = {
+                "partner_id": self.vendor_id.id,
+                "min_qty": 1.0,
+                "price": self.purchase_price,
+            }
             if self.vendor_id:
-                prod_id.update({
-                    "name": self.vendor_id.id,
-                    "min_qty": 1.0,
-                    "price": self.purchase_price,
-                    "sequence": 1,
-                    "product_id": prod_id.id,
+                prod_id.write({
+                    "seller_ids": [(0, 0, vendor_data)],
                 })

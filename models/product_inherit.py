@@ -46,7 +46,7 @@ class Pricelist(models.Model):
         ('non_policy', 'Không theo chính sách')
     ], string="Loại bảng giá", default='main', required=True)
     # def_pl_id = fields.Many2one('product.pricelist', string="Bảng giá NY", domain=[('type_pl', '=', 'main')])
-    user_id = fields.Many2one('res.user', string="Nhân viên kinh doanh")
+    # user_id = fields.Many2one('res.user', string="Nhân viên kinh doanh")
     discount = fields.Float(string='Chiết khấu theo bảng giá (%)', tracking=True)
     roles = fields.Selection([
         ('daily1', 'Đại lý cấp 1'),
@@ -749,7 +749,7 @@ class ResPartnerCustomize(models.Model):
                     "res_model": "sale.order.line",
                     "type": "ir.actions.act_window",
                     "view_mode": "tree",
-                    "domain": [('order_partner_id', '=', self.id)],
+                    "domain": ['|', '|' , ('order_partner_id', '=', self.id), ('order_partner_id.parent_id', '=', self.id), ('order_partner_id.parent_id', '=', self.parent_id.id)],
                     "context": {"create": False},
                     "view_id": view_id.ids,
                     "search_view_id": search_view_id.ids,
@@ -935,6 +935,19 @@ class PurchaseOrderLine(models.Model):
     brand = fields.Char(string="Hãng")
     color = fields.Char(string="Màu")
     note = fields.Text(string="Ghi chú")
+    old_price_unit = fields.Float(string="Đơn giá")
+
+    @api.onchange('old_price_unit', 'product_uom_qty')
+    def _onchange_price_custom(self):
+        self.write({
+            'price_unit': self.old_price_unit,
+        })
+
+    # @api.onchange('tax_id')
+    # def _onchange_price_dis_custom(self):
+    #     self.write({
+    #         'old_price_unit': self.price_unit,
+    #     })
 
     @api.onchange("product_id")
     def purchase_virtual_qty(self):
@@ -965,21 +978,6 @@ class PurchaseOrderLine(models.Model):
                 "name": name,
             })
 
-    # @api.depends('product_qty', 'price_unit', 'taxes_id', 'product_id')
-    # def _compute_amount(self):
-    #     res = {}
-    #     for line in self:
-    #         res = super(PurchaseOrderLine, self)._compute_amount()
-    #         name = line.product_id.name
-    #         attr_prod = line.product_id.product_template_attribute_value_ids
-    #         if attr_prod:
-    #             attr_name = ''
-    #             for a in attr_prod:
-    #                 attr_name += ' ' + a.name + ' '
-    #             name = name + '(' + attr_name + ')'
-    #         line.update({"name": name})
-    #     return res
-
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
@@ -990,7 +988,7 @@ class SaleOrderLine(models.Model):
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="_virtual_qty")
     cus_discount = fields.Float(string='C.Khấu ($)')
     rename = fields.Boolean(string=False)
-    old_price_unit = fields.Float(string='Đơn giá cũ', readonly=False)
+    old_price_unit = fields.Float(string='Đơn giá', readonly=False)
     low_price = fields.Boolean(default=False)
     note = fields.Char(string='Ghi chú')
 
@@ -1000,6 +998,17 @@ class SaleOrderLine(models.Model):
             return True
         self.rename = True
 
+    @api.onchange('old_price_unit', 'product_uom_qty')
+    def _onchange_price_custom(self):
+        self.write({
+            'price_unit': self.old_price_unit,
+        })
+
+    @api.onchange('discount', 'tax_id')
+    def _onchange_price_dis_custom(self):
+        self.write({
+            'old_price_unit': self.price_unit,
+        })
 
     # def _compute_amount(self):
     #     vals = {}

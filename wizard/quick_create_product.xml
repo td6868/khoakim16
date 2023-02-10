@@ -17,27 +17,23 @@
                             <field name="prod_code"/>
                         </group>
                         <group>
-                            <field name="vendor_id" widget="many2one_avatar_user"/>
+                            <field name="vendor_id" attrs="{'required': [('purchase_price', '>', 0)]}"/>
                         </group>
                         <group>
                             <field name="purchase_price"/>
                         </group>
                     </group>
                     <group name="product_variants_and_values">
-                        <notebook>
-                            <page name="variants" string="Thuộc tính và Biến thể">
-                                <field name="attrs_line_ids" widget="one2many" context="{'show_attribute': False}">
-                                    <tree string="Biến thể" editable="bottom">
-                                        <field name="attribute_id" attrs="{'readonly': [('id', '!=', False)]}"/>
-                                        <field name="value_ids" widget="many2many_tags"
-                                               options="{'no_create_edit': True, 'color_field': 'color'}"
-                                               context="{'default_attribute_id': attribute_id, 'show_attribute': False}"/>
+                        <field name="attrs_line_ids" widget="one2many" context="{'show_attribute': False}">
+                            <tree string="Biến thể" editable="bottom">
+                                <field name="attribute_id" attrs="{'readonly': [('id', '!=', False)]}"/>
+                                <field name="value_ids" widget="many2many_tags"
+                                       options="{'no_create_edit': True, 'color_field': 'color'}"
+                                       context="{'default_attribute_id': attribute_id, 'show_attribute': False}"/>
 <!--                                        <button string="Cấu hình" class="float-right btn-secondary"-->
 <!--                                                type="object" name="action_open_attribute_values"/>-->
-                                    </tree>
-                                </field>
-                            </page>
-                        </notebook>
+                            </tree>
+                        </field>
                     </group>
                     <footer>
                         <button name="create_product" string="Xác nhận" type="object"
