@@ -55,6 +55,6 @@
 <!--    <menuitem name="Chi tiết đơn hàng" id="menu_sale_order_line"-->
 <!--              sequence="5" parent="sale.menu_report_sales" action="action_sale_order_line_view"/>-->
     <menuitem action="product.product_supplierinfo_type_action" id="menu_view_price_purchase_list_supplier_action"
-            parent="purchase.menu_purchase_products" name="Bảng giá vốn" sequence="200"/>
+            parent="purchase.menu_purchase_products" name="Bảng giá NCC" sequence="200"/>
 
 </odoo>

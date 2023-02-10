@@ -400,6 +400,16 @@
                 <field name="qty_available"/>
             </xpath>
 
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="replace">
+                <field name="old_price_unit"/>
+                <field name="price_unit" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="replace">
+                <field name="old_price_unit"/>
+                <field name="price_unit" invisible="1"/>
+            </xpath>
+
 <!--            <div class="o_kanban_image">-->
 <!--                <img t-att-src="kanban_image('product.template', 'image_1920', record.prod_image.raw_value)" alt="Sản phẩm" class="o_image_64_contain"/>-->
 <!--            </div>-->
