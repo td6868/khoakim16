@@ -22,7 +22,7 @@ class StdPriceChange(models.TransientModel):
     def change_std_price(self):
         purc_amount, purc_comp_id = self.get_infor_company()
         ir_property = self.env['ir.property']
-        product_model = self.env['ir.model'].search([('model', '=', 'product.product')])
+        product_model = self.env['ir.model'].search([('model', '=', 'product.template')])
         std_prc_field = self.env['ir.model.fields'].search([('model_id', '=', product_model.id),
                                                             ('name', '=', 'standard_price')])
         all_product = ir_property.search([('company_id', '=', purc_comp_id.id),

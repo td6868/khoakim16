@@ -130,6 +130,8 @@ class ProductTemplate(models.Model):
     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_code', store=True)
     wp_ok = fields.Boolean(string="Khả dụng ở website")
     prod_code = fields.Char(string="Mã SP/NSX", required=False)
+    product_attr_tags = fields.Many2many("product.template.attr.value",
+                                         string="Giá trị thuộc tính")
     sale_ok = fields.Boolean('Có thể bán', default=False)
     purchase_ok = fields.Boolean('Có thể mua', default=False)
     appr_state = fields.Boolean('Trạng thái duyệt', default=False)
@@ -161,6 +163,8 @@ class ProductTemplate(models.Model):
             self.update({
                 "seller_id": data,
             })
+
+    # def change_name(self):
 
     @api.onchange('prod_code')
     def action_duplicate_code(self):
@@ -258,16 +262,16 @@ class ProductTemplate(models.Model):
                 },
             }
 
-class ProductAttributeValues(models.Model):
-    _inherit = 'product.attribute.value'
+# class ProductAttributeValues(models.Model):
+#     _inherit = 'product.attribute.value'
+#
+#     acode = fields.Char(string='Mã biến thể', required=True)
+#     attr_term_wp = fields.Char(string='ID')
 
-    acode = fields.Char(string='Mã biến thể', required=True)
-    attr_term_wp = fields.Char(string='ID')
-
-class ProductAttribute(models.Model):
-    _inherit = 'product.attribute'
-
-    attr_wp = fields.Char(string='ID')
+# class ProductAttribute(models.Model):
+#     _inherit = 'product.attribute'
+#
+#     attr_wp = fields.Char(string='ID')
 
 class ProductCategory(models.Model):
     _inherit = 'product.category'
@@ -375,328 +379,328 @@ class ProductCategory(models.Model):
             for rec in categ_ids:
                 rec.check_categ_wp(wcapi)
 
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
-
-    prod_code = fields.Char(string="Mã SP/SX", compute='_get_temp_prod')
-    default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_attrs_code', store=True)
-    sku_wp = fields.Char(string="ID WP")
-    extra_price = fields.Float(string="Giá niêm yết", default=0)
-    is_change_ep = fields.Boolean(default=False)
-
-    @api.model
-    def create(self, vals):
-        res = super(ProductProduct, self).create(vals)
-        self.purchase_create()
-        return res
-
-    def write(self, vals):
-        res = super(ProductProduct, self).write(vals)
-        try:
-            if self.is_change_ep:
-                self.check_price_extra(vals["extra_price"])
-                self.is_change_ep = False
-        except:
-            pass
-        return res
-
-    def purchase_create(self):
-        if self.env.company.purc_comp_id:
-            data = {
-                "name": self.env.company.purc_comp_id.id,
-                "min_qty": 1.0,
-                "price": self.standard_price,
-                "sequence": 1,
-                "product_id": self.id,
-            }
-            self.update({
-                "seller_id": data,
-            })
-
-    @api.onchange("extra_price")
-    def onchange_extra_price(self):
-        if self.extra_price:
-            self.is_change_ep = True
-
-    def check_price_extra(self, extra_price):
-        df_pl = self.env['product.pricelist'].search([('type_pl','=','main')], limit=1)
-        pl_item = self.env['product.pricelist.item']
-        prod_price = pl_item.search([('pricelist_id', '=', df_pl.id),
-                                    ('product_id', '=', self.id)], limit=1)
-        if prod_price:
-            if extra_price:
-                prod_price.write({'fixed_price': extra_price})
-            else:
-                self.extra_price = prod_price.fixed_price
-        else:
-            prod_temp = self.product_tmpl_id
-            prod_id = self.env['product.product'].search([('id', '=', self.id)])
-            vals = {
-                        "applied_on": "0_product_variant",
-                        "pricelist_id": df_pl.id,
-                        "product_tmpl_id": prod_temp.id,
-                        "product_id": prod_id.id,
-                        "fixed_price": extra_price,
-                    }
-            pl_item.create(vals)
-
-    def update_extra_price_batch(self):
-        for p in self.browse(self.env.context['active_ids']):
-            p.check_price_extra(p.extra_price)
-
-    def _get_temp_prod(self):
-        for p in self:
-            if p.product_tmpl_id:
-                p.prod_code = p.product_tmpl_id.prod_code or ''
-
-    @api.depends('product_template_attribute_value_ids', 'prod_code', 'product_tmpl_id.default_code')
-    def _gen_product_attrs_code(self):
-        for prod in self:
-            code = prod.product_tmpl_id.default_code or ''
-            attrs = prod.product_template_attribute_value_ids
-            if attrs:
-                b = []
-                for s in attrs:
-                    b.append((s.attribute_id.sequence, s.product_attribute_value_id.acode))
-                d = sorted(b)
-                for c in d:
-                    code += c[1] or ''
-                prod.default_code = code
-
-    @api.onchange('url_img')
-    def onchange_image(self):
-        if self.url_img:
-            get_img = urllib.request.urlopen(self.url_img).read()
-            img_b64 = base64.b64encode(get_img)
-            self.write({
-                "image_1920": img_b64,
-                "image_1024": img_b64,
-                "image_128": img_b64,
-                "image_256": img_b64,
-                "image_512": img_b64,
-                "image_variant_1920": img_b64,
-                "image_variant_1024": img_b64,
-                "image_variant_512": img_b64,
-                "image_variant_256": img_b64,
-                "image_variant_128": img_b64,
-            })
-
-    def compute_variant_product(self, tag=None):
-        attrs = ''
-        name = self.name
-        attr_prod = self.product_template_attribute_value_ids
-        tags = []
-        brand = 'Không có'
-        for a in attr_prod:
-            if a.attribute_id.sequence == 0:
-                brand = a.name
-            attrs += '<p>' + a.attribute_id.name + ' : ' + a.name + '</p>'
-            name += ' ' + a.name
-            if tag == True:
-                tags.append({"name": a.name})
-        return {'brand': brand, 'attrs': attrs, 'name': name, 'tags': tags}
-
-    # Đồng bộ hoá gsheet
-    def sync_odoo_prod_gsheet(self):
-        prod_ids = self.browse(self.env.context['active_ids'])
-        time_update = fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        for rec in prod_ids:
-            cell = WS_PROD.find(query=str(rec.id), in_column=2)
-            variants = self.compute_variant_product()
-            vals = [time_update, rec.id, rec.url_img or '', rec.url_img or rec.product_tmpl_id.url_img or '', variants['name'], rec.prod_code, rec.categ_id.name, variants['brand'], variants['attrs'], rec.list_price, rec.virtual_available]
-            if cell:
-                row = cell.row
-            else:
-                row = next_available_row(WS_PROD)
-            # WS_PROD.update_cell(values=vals, row=int(row))
-            cells = []
-            for i in range(len(vals)):
-                cells.append(Cell(row=int(row), col=i + 1, value=vals[i]))
-            WS_PROD.update_cells(cells)
-            time.sleep(2)
-
-    #get pricelist product
-    def get_all_product_list(self):
-        prod_prices = self.env['product.pricelist.item'].search(['|',('product_id', '=', self.id),
-                                                                 ('applied_on', '=', '3_global'),
-                                                                 ('pricelist_id.type_pl', '=', 'policy')]
-                                                                )
-        main_price = self.env['product.pricelist.item'].search([('product_id', '=', self.id),
-                                                                 ('pricelist_id.type_pl', '=', 'main')],
-                                                               limit=1)
-        price_main = main_price.fixed_price or self.list_price
-        all_pu = {'main': price_main,}
-        for pl in prod_prices:
-            if (pl.applied_on == '3_global' and pl.price):
-                pl_roles = pl.pricelist_id.roles
-                price_policy = price_main - (pl.price_discount / 100 * price_main) + pl.price_surcharge
-                if pl.price_round:
-                    price_policy = math.ceil(price_policy/pl.price_round) * pl.price_round
-                all_pu.update({pl_roles: price_policy,})
-        return all_pu
-
-    #authen wp
-    def wp_auth(self):
-        com_id = self.env.company or self.env['res.company'].search([('wp_url', '=', True),
-                                                                     ('woo_ck', '=', True),
-                                                                     ('woo_cs', '=', True)], order='id asc', limit=1)
-        wp_url = com_id.wp_url
-        woo_ck = com_id.woo_ck
-        woo_cs = com_id.woo_cs
-        if (wp_url == False or woo_ck == False or woo_cs == False):
-            return False
-        wcapi = API(
-            url=wp_url,
-            consumer_key=woo_ck,
-            consumer_secret=woo_cs,
-            version="wc/v3",
-            timeout=30
-        )
-        return wcapi
-
-    #create wp product
-    def update_wp_product(self, categ_id, wcapi):
-        variants = self.compute_variant_product(tag=True)
-        prices = self.get_all_product_list()
-        stock_quan = self.qty_available or 12
-        src = [self.url_img or self.product_tmpl_id.url_img, self.url_img2, self.url_img3, self.url_img4, self.url_img5]
-        images = []
-        for s in src:
-            if s:
-                images.append({"src": s})
-
-        status = 'private'
-        if self.product_tmpl_id.wp_ok:
-            status = 'publish'
-
-        data = {
-                    "name": variants['name'],
-                    "type": "simple",
-                    "status": status,
-                    "regular_price": str(prices['main']),
-                    "description": "",
-                    "short_description": variants['attrs'],
-                    "sku": str(self.default_code),
-                    "manage_stock": 1,
-                    "stock_quantity": str(stock_quan),
-                    "categories": [
-                        {
-                            "id": int(categ_id)
-                        },
-                    ],
-                    "images": images,
-                    "tags": variants['tags'],
-                    "meta_data": [
-                        {
-                            "key": "_pricing_rules",
-                            "value": {
-                                "set_1": {
-                                    "conditions_type": "all",
-                                    "conditions": {
-                                        "1": {
-                                            "type": "apply_to",
-                                            "args": {
-                                                "applies_to": "roles",
-                                                "roles": [
-                                                    "daily1"
-                                                ]
-                                            }
-                                        }
-                                    },
-                                    "collector": {
-                                        "type": "product"
-                                    },
-                                    "mode": "continuous",
-                                    "rules": {
-                                        "1": {
-                                            "from": "1",
-                                            "type": "fixed_price",
-                                            "amount": str(prices["daily1"] or 0)
-                                        }
-                                    },
-                                },
-                                "set_2": {
-                                    "conditions_type": "all",
-                                    "conditions": {
-                                        "1": {
-                                            "type": "apply_to",
-                                            "args": {
-                                                "applies_to": "roles",
-                                                "roles": [
-                                                    "daily2"
-                                                ]
-                                            }
-                                        }
-                                    },
-                                    "collector": {
-                                        "type": "product"
-                                    },
-                                    "mode": "continuous",
-                                    "rules": {
-                                        "1": {
-                                            "from": "1",
-                                            "type": "fixed_price",
-                                            "amount": str(prices["daily2"] or 0)
-                                        }
-                                    },
-                                },
-                                "set_3": {
-                                    "conditions_type": "all",
-                                    "conditions": {
-                                        "1": {
-                                            "type": "apply_to",
-                                            "args": {
-                                                "applies_to": "roles",
-                                                "roles": [
-                                                    "daily3"
-                                                ]
-                                            }
-                                        }
-                                    },
-                                    "collector": {
-                                        "type": "product"
-                                    },
-                                    "mode": "continuous",
-                                    "rules": {
-                                        "1": {
-                                            "from": "1",
-                                            "type": "fixed_price",
-                                            "amount": str(prices["daily3"] or 0)
-                                        }
-                                    },
-                                }
-                            }
-                        }
-                    ],
-                }
-        if self.sku_wp:
-            update = wcapi.put("products/" + str(self.sku_wp), data)
-        else:
-            update = wcapi.post("products", data)
-        status = update.status_code
-        if status == 201:
-            js = update.json()
-            self.sku_wp = js['id']
-        return self.sku_wp
-
-    #Đồng bộ hoá sản phẩm web
-    def sync_product_wp(self):
-        wcapi = self.wp_auth()
-        if wcapi:
-            categ_id = self.categ_id.check_categ_wp(wcapi)
-            self.update_wp_product(wcapi=wcapi, categ_id=categ_id)
-
-    #batch đồng bộ sản phẩm
-    def batch_sync_product_wp(self):
-        for p in self.browse(self.env.context['active_ids']):
-            p.sync_product_wp()
-
-    #đồng bộ tự động
-    def auto_sync_product_wp(self):
-        prod_ids = self.env['product.product'].search([('detailed_type', '=', 'product')],
-                                                      order='id asc')
-        for rec in prod_ids:
-            rec.sync_product_wp()
+# class ProductProduct(models.Model):
+#     _inherit = 'product.product'
+#
+#     prod_code = fields.Char(string="Mã SP/SX", compute='_get_temp_prod')
+#     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_attrs_code', store=True)
+#     sku_wp = fields.Char(string="ID WP")
+#     extra_price = fields.Float(string="Giá niêm yết", default=0)
+#     is_change_ep = fields.Boolean(default=False)
+#
+#     @api.model
+#     def create(self, vals):
+#         res = super(ProductProduct, self).create(vals)
+#         self.purchase_create()
+#         return res
+#
+#     def write(self, vals):
+#         res = super(ProductProduct, self).write(vals)
+#         try:
+#             if self.is_change_ep:
+#                 self.check_price_extra(vals["extra_price"])
+#                 self.is_change_ep = False
+#         except:
+#             pass
+#         return res
+#
+#     def purchase_create(self):
+#         if self.env.company.purc_comp_id:
+#             data = {
+#                 "name": self.env.company.purc_comp_id.id,
+#                 "min_qty": 1.0,
+#                 "price": self.standard_price,
+#                 "sequence": 1,
+#                 "product_id": self.id,
+#             }
+#             self.update({
+#                 "seller_id": data,
+#             })
+#
+#     @api.onchange("extra_price")
+#     def onchange_extra_price(self):
+#         if self.extra_price:
+#             self.is_change_ep = True
+#
+#     def check_price_extra(self, extra_price):
+#         df_pl = self.env['product.pricelist'].search([('type_pl','=','main')], limit=1)
+#         pl_item = self.env['product.pricelist.item']
+#         prod_price = pl_item.search([('pricelist_id', '=', df_pl.id),
+#                                     ('product_id', '=', self.id)], limit=1)
+#         if prod_price:
+#             if extra_price:
+#                 prod_price.write({'fixed_price': extra_price})
+#             else:
+#                 self.extra_price = prod_price.fixed_price
+#         else:
+#             prod_temp = self.product_tmpl_id
+#             prod_id = self.env['product.product'].search([('id', '=', self.id)])
+#             vals = {
+#                         "applied_on": "0_product_variant",
+#                         "pricelist_id": df_pl.id,
+#                         "product_tmpl_id": prod_temp.id,
+#                         "product_id": prod_id.id,
+#                         "fixed_price": extra_price,
+#                     }
+#             pl_item.create(vals)
+#
+#     def update_extra_price_batch(self):
+#         for p in self.browse(self.env.context['active_ids']):
+#             p.check_price_extra(p.extra_price)
+#
+#     def _get_temp_prod(self):
+#         for p in self:
+#             if p.product_tmpl_id:
+#                 p.prod_code = p.product_tmpl_id.prod_code or ''
+#
+#     @api.depends('product_template_attribute_value_ids', 'prod_code', 'product_tmpl_id.default_code')
+#     def _gen_product_attrs_code(self):
+#         for prod in self:
+#             code = prod.product_tmpl_id.default_code or ''
+#             attrs = prod.product_template_attribute_value_ids
+#             if attrs:
+#                 b = []
+#                 for s in attrs:
+#                     b.append((s.attribute_id.sequence, s.product_attribute_value_id.acode))
+#                 d = sorted(b)
+#                 for c in d:
+#                     code += c[1] or ''
+#                 prod.default_code = code
+#
+#     @api.onchange('url_img')
+#     def onchange_image(self):
+#         if self.url_img:
+#             get_img = urllib.request.urlopen(self.url_img).read()
+#             img_b64 = base64.b64encode(get_img)
+#             self.write({
+#                 "image_1920": img_b64,
+#                 "image_1024": img_b64,
+#                 "image_128": img_b64,
+#                 "image_256": img_b64,
+#                 "image_512": img_b64,
+#                 "image_variant_1920": img_b64,
+#                 "image_variant_1024": img_b64,
+#                 "image_variant_512": img_b64,
+#                 "image_variant_256": img_b64,
+#                 "image_variant_128": img_b64,
+#             })
+#
+#     def compute_variant_product(self, tag=None):
+#         attrs = ''
+#         name = self.name
+#         attr_prod = self.product_template_attribute_value_ids
+#         tags = []
+#         brand = 'Không có'
+#         for a in attr_prod:
+#             if a.attribute_id.sequence == 0:
+#                 brand = a.name
+#             attrs += '<p>' + a.attribute_id.name + ' : ' + a.name + '</p>'
+#             name += ' ' + a.name
+#             if tag == True:
+#                 tags.append({"name": a.name})
+#         return {'brand': brand, 'attrs': attrs, 'name': name, 'tags': tags}
+#
+#     # Đồng bộ hoá gsheet
+#     def sync_odoo_prod_gsheet(self):
+#         prod_ids = self.browse(self.env.context['active_ids'])
+#         time_update = fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         for rec in prod_ids:
+#             cell = WS_PROD.find(query=str(rec.id), in_column=2)
+#             variants = self.compute_variant_product()
+#             vals = [time_update, rec.id, rec.url_img or '', rec.url_img or rec.product_tmpl_id.url_img or '', variants['name'], rec.prod_code, rec.categ_id.name, variants['brand'], variants['attrs'], rec.list_price, rec.virtual_available]
+#             if cell:
+#                 row = cell.row
+#             else:
+#                 row = next_available_row(WS_PROD)
+#             # WS_PROD.update_cell(values=vals, row=int(row))
+#             cells = []
+#             for i in range(len(vals)):
+#                 cells.append(Cell(row=int(row), col=i + 1, value=vals[i]))
+#             WS_PROD.update_cells(cells)
+#             time.sleep(2)
+#
+#     #get pricelist product
+#     def get_all_product_list(self):
+#         prod_prices = self.env['product.pricelist.item'].search(['|',('product_id', '=', self.id),
+#                                                                  ('applied_on', '=', '3_global'),
+#                                                                  ('pricelist_id.type_pl', '=', 'policy')]
+#                                                                 )
+#         main_price = self.env['product.pricelist.item'].search([('product_id', '=', self.id),
+#                                                                  ('pricelist_id.type_pl', '=', 'main')],
+#                                                                limit=1)
+#         price_main = main_price.fixed_price or self.list_price
+#         all_pu = {'main': price_main,}
+#         for pl in prod_prices:
+#             if (pl.applied_on == '3_global' and pl.price):
+#                 pl_roles = pl.pricelist_id.roles
+#                 price_policy = price_main - (pl.price_discount / 100 * price_main) + pl.price_surcharge
+#                 if pl.price_round:
+#                     price_policy = math.ceil(price_policy/pl.price_round) * pl.price_round
+#                 all_pu.update({pl_roles: price_policy,})
+#         return all_pu
+#
+#     #authen wp
+#     def wp_auth(self):
+#         com_id = self.env.company or self.env['res.company'].search([('wp_url', '=', True),
+#                                                                      ('woo_ck', '=', True),
+#                                                                      ('woo_cs', '=', True)], order='id asc', limit=1)
+#         wp_url = com_id.wp_url
+#         woo_ck = com_id.woo_ck
+#         woo_cs = com_id.woo_cs
+#         if (wp_url == False or woo_ck == False or woo_cs == False):
+#             return False
+#         wcapi = API(
+#             url=wp_url,
+#             consumer_key=woo_ck,
+#             consumer_secret=woo_cs,
+#             version="wc/v3",
+#             timeout=30
+#         )
+#         return wcapi
+#
+#     #create wp product
+#     def update_wp_product(self, categ_id, wcapi):
+#         variants = self.compute_variant_product(tag=True)
+#         prices = self.get_all_product_list()
+#         stock_quan = self.qty_available or 12
+#         src = [self.url_img or self.product_tmpl_id.url_img, self.url_img2, self.url_img3, self.url_img4, self.url_img5]
+#         images = []
+#         for s in src:
+#             if s:
+#                 images.append({"src": s})
+#
+#         status = 'private'
+#         if self.product_tmpl_id.wp_ok:
+#             status = 'publish'
+#
+#         data = {
+#                     "name": variants['name'],
+#                     "type": "simple",
+#                     "status": status,
+#                     "regular_price": str(prices['main']),
+#                     "description": "",
+#                     "short_description": variants['attrs'],
+#                     "sku": str(self.default_code),
+#                     "manage_stock": 1,
+#                     "stock_quantity": str(stock_quan),
+#                     "categories": [
+#                         {
+#                             "id": int(categ_id)
+#                         },
+#                     ],
+#                     "images": images,
+#                     "tags": variants['tags'],
+#                     "meta_data": [
+#                         {
+#                             "key": "_pricing_rules",
+#                             "value": {
+#                                 "set_1": {
+#                                     "conditions_type": "all",
+#                                     "conditions": {
+#                                         "1": {
+#                                             "type": "apply_to",
+#                                             "args": {
+#                                                 "applies_to": "roles",
+#                                                 "roles": [
+#                                                     "daily1"
+#                                                 ]
+#                                             }
+#                                         }
+#                                     },
+#                                     "collector": {
+#                                         "type": "product"
+#                                     },
+#                                     "mode": "continuous",
+#                                     "rules": {
+#                                         "1": {
+#                                             "from": "1",
+#                                             "type": "fixed_price",
+#                                             "amount": str(prices["daily1"] or 0)
+#                                         }
+#                                     },
+#                                 },
+#                                 "set_2": {
+#                                     "conditions_type": "all",
+#                                     "conditions": {
+#                                         "1": {
+#                                             "type": "apply_to",
+#                                             "args": {
+#                                                 "applies_to": "roles",
+#                                                 "roles": [
+#                                                     "daily2"
+#                                                 ]
+#                                             }
+#                                         }
+#                                     },
+#                                     "collector": {
+#                                         "type": "product"
+#                                     },
+#                                     "mode": "continuous",
+#                                     "rules": {
+#                                         "1": {
+#                                             "from": "1",
+#                                             "type": "fixed_price",
+#                                             "amount": str(prices["daily2"] or 0)
+#                                         }
+#                                     },
+#                                 },
+#                                 "set_3": {
+#                                     "conditions_type": "all",
+#                                     "conditions": {
+#                                         "1": {
+#                                             "type": "apply_to",
+#                                             "args": {
+#                                                 "applies_to": "roles",
+#                                                 "roles": [
+#                                                     "daily3"
+#                                                 ]
+#                                             }
+#                                         }
+#                                     },
+#                                     "collector": {
+#                                         "type": "product"
+#                                     },
+#                                     "mode": "continuous",
+#                                     "rules": {
+#                                         "1": {
+#                                             "from": "1",
+#                                             "type": "fixed_price",
+#                                             "amount": str(prices["daily3"] or 0)
+#                                         }
+#                                     },
+#                                 }
+#                             }
+#                         }
+#                     ],
+#                 }
+#         if self.sku_wp:
+#             update = wcapi.put("products/" + str(self.sku_wp), data)
+#         else:
+#             update = wcapi.post("products", data)
+#         status = update.status_code
+#         if status == 201:
+#             js = update.json()
+#             self.sku_wp = js['id']
+#         return self.sku_wp
+#
+#     #Đồng bộ hoá sản phẩm web
+#     def sync_product_wp(self):
+#         wcapi = self.wp_auth()
+#         if wcapi:
+#             categ_id = self.categ_id.check_categ_wp(wcapi)
+#             self.update_wp_product(wcapi=wcapi, categ_id=categ_id)
+#
+#     #batch đồng bộ sản phẩm
+#     def batch_sync_product_wp(self):
+#         for p in self.browse(self.env.context['active_ids']):
+#             p.sync_product_wp()
+#
+#     #đồng bộ tự động
+#     def auto_sync_product_wp(self):
+#         prod_ids = self.env['product.product'].search([('detailed_type', '=', 'product')],
+#                                                       order='id asc')
+#         for rec in prod_ids:
+#             rec.sync_product_wp()
 
 class ResPartnerCustomize(models.Model):
     _inherit = 'res.partner'
@@ -1540,7 +1544,8 @@ class ReturnOrderLine(models.Model):
     order_id = fields.Many2one('sale.order', required=True, ondelete="cascade")
     picking_id = fields.Many2one('stock.picking', required=True, ondelete="cascade")
     date_done = fields.Datetime(string='Ngày thực hiện', required=True)
-    product_id = fields.Many2one('product.product', string="Sản phẩm")
+    # product_id = fields.Many2one('product.product', string="Sản phẩm")
+    product_temp_id = fields.Many2one('product.template', string="Sản phẩm")
     product_uom = fields.Many2one('uom.uom', string='Đơn vị', related="product_id.uom_id")
     product_qty = fields.Float(string='Số lương', default=1.0)
     price_unit = fields.Float(string="Đơn giá", compute="_compute_price_total")
@@ -1603,7 +1608,8 @@ class QuickSaleOrderLine(models.Model):
 
     order_id = fields.Many2one('sale.order', required=True, ondelete="cascade")
     so_line_id = fields.Integer(sting="Dòng báo giá")
-    product_id = fields.Many2one('product.product', string="Sản phẩm")
+    # product_id = fields.Many2one('product.product', string="Sản phẩm")
+    product_temp_id = fields.Many2one('product.template', string="Sản phẩm")
     catg_prod_id = fields.Many2one('product.category', string="Danh mục")
     prod_code = fields.Char(string='Mã sản phẩm')
     seq_cus = fields.Integer(string="STT", readonly=True)
@@ -1683,6 +1689,35 @@ class QuickSaleOrderLine(models.Model):
             'type': 'ir.actions.act_window',
         }
 
+#Thuộc tính và giá trị
+class ProductTemplateAttributeValue(models.Model):
+    _name = 'product.template.attr.value'
+    _description = 'Giá trị thuộc tính sản phẩm'
+    _order = 'attribute_id, sequence, id'
+
+    name = fields.Char(string="Giá trị thuộc tính", required=True)
+    display_name = fields.Char(string="Giá trị thuộc tính", compute="_compute_display_name")
+    acode = fields.Char(string="Mã biến thể", required=True)
+    sequence = fields.Integer(string="Quy tắc mã")
+    attribute_id = fields.Many2many('product.template.attribute',
+                                    string="Thuộc tính")
+
+    @api.depends('attribute_id', 'name')
+    def _compute_display_name(self):
+        if self.name and self.attribute_id:
+            self.display_name = self.attribute_id.name + " : " + self.name
+
+class ProductTemplateAttribute(models.Model):
+    _name = 'product.template.attr'
+    _description = 'Thuộc tính sản phẩm'
+    _order = 'sequence, id'
+
+    name = fields.Char(string="Thuộc tính", required=True)
+    sequence = fields.Integer(string="Quy tắc mã")
+    product_tmpl_ids = fields.Many2many("product.template",string="Sản phẩm liên quan")
+    value_ids = fields.One2many("product.template.attr.value", "attribute_id",
+                                         string="Giá trị thuộc tính")
+    
 
 # Module tính giá
 

@@ -20,7 +20,8 @@ class SaleLineReport(models.Model):
     #                                 ('cancel', 'Đã hủy'),
     #                             ], string='Trạng thái', readonly=True)
     purchase_price = fields.Float(string='Chi phí', readonly=True)
-    product_id = fields.Many2one('product.product', string="Sản phẩm", readonly=True)
+    # product_id = fields.Many2one('product.product', string="Sản phẩm", readonly=True)
+    product_temp_id = fields.Many2one('product.template', string="Sản phẩm", readonly=True)
     catg_prod_id = fields.Many2one('product.category', string="Danh mục", readonly=True)
     name = fields.Char(string='Tên sản phẩm', readonly=True)
     product_qty = fields.Float(string='Số lương', readonly=True)

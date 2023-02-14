@@ -570,69 +570,69 @@
         </field>
     </record>
 
-    <record id="view_product_produtc_form_inherit" model="ir.ui.view">
-        <field name="name">product.product.inherit</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view"/>
-        <field name="arch" type="xml">
-<!--            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">-->
-<!--                <button name="test_attrs" type="object" string="Test A"/>-->
+<!--    <record id="view_product_produtc_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product.product.inherit</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="product.product_normal_form_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--&lt;!&ndash;            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">&ndash;&gt;-->
+<!--&lt;!&ndash;                <button name="test_attrs" type="object" string="Test A"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
+<!--            <xpath expr="//div[@name='options']" position="after">-->
+<!--                <div>-->
+<!--                    <field name="url_img" label="URL"/>-->
+<!--                    <field name="sku_wp" invisible="1"/>-->
+<!--                </div>-->
 <!--            </xpath>-->
-            <xpath expr="//div[@name='options']" position="after">
-                <div>
-                    <field name="url_img" label="URL"/>
-                    <field name="sku_wp" invisible="1"/>
-                </div>
-            </xpath>
-            <xpath expr="//field[@name='default_code']" position="replace">
-                <field name="prod_code" attrs="{'required': [('detailed_type', '=', 'product')]}"/>
-                <field name="default_code" force_save="1" readonly="1"/>
-            </xpath>
-<!--            <xpath expr="//field[@name='available_in_pos']" position="after">-->
-<!--                <field name="wp_ok"/>-->
+<!--            <xpath expr="//field[@name='default_code']" position="replace">-->
+<!--                <field name="prod_code" attrs="{'required': [('detailed_type', '=', 'product')]}"/>-->
+<!--                <field name="default_code" force_save="1" readonly="1"/>-->
 <!--            </xpath>-->
-            <xpath expr="//group[@name='description']" position="before">
-                <group name="url_image" position="before">
-                    <field name="url_img2"/>
-                    <field name="url_img3"/>
-                    <field name="url_img4"/>
-                    <field name="url_img5"/>
-                </group>
-            </xpath>
-            <xpath expr="//field[@name='taxes_id']" position="after">
-                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
-                <field name="is_change_ep" invisible="1"/>
-            </xpath>
-
-        </field>
-    </record>
-
-    <record id="view_product_product_easy_edit_form_inherit" model="ir.ui.view">
-        <field name="name">product.product.inherit</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
-        <field name="arch" type="xml">
-<!--            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">-->
-<!--                <button name="test_attrs" type="object" string="Test A"/>-->
+<!--&lt;!&ndash;            <xpath expr="//field[@name='available_in_pos']" position="after">&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="wp_ok"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
+<!--            <xpath expr="//group[@name='description']" position="before">-->
+<!--                <group name="url_image" position="before">-->
+<!--                    <field name="url_img2"/>-->
+<!--                    <field name="url_img3"/>-->
+<!--                    <field name="url_img4"/>-->
+<!--                    <field name="url_img5"/>-->
+<!--                </group>-->
 <!--            </xpath>-->
-            <xpath expr="//field[@name='standard_price']" position="before">
-                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
-                <field name="is_change_ep" invisible="1"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='taxes_id']" position="after">-->
+<!--                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>-->
+<!--                <field name="is_change_ep" invisible="1"/>-->
+<!--            </xpath>-->
 
-        </field>
-    </record>
+<!--        </field>-->
+<!--    </record>-->
 
-    <record id="view_variant_product_inherit" model="ir.ui.view">
-        <field name="name">product.product.inherit</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_product_tree_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='lst_price']" position="replace">
-                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
-            </xpath>
-        </field>
-    </record>
+<!--    <record id="view_product_product_easy_edit_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product.product.inherit</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--&lt;!&ndash;            <xpath expr="//button[@name='action_update_quantity_on_hand']" position="before">&ndash;&gt;-->
+<!--&lt;!&ndash;                <button name="test_attrs" type="object" string="Test A"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
+<!--            <xpath expr="//field[@name='standard_price']" position="before">-->
+<!--                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>-->
+<!--                <field name="is_change_ep" invisible="1"/>-->
+<!--            </xpath>-->
+
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    <record id="view_variant_product_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product.product.inherit</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="product.product_product_tree_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='lst_price']" position="replace">-->
+<!--                <field name="extra_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
     <record id="view_product_produtc_form_temp_inherit" model="ir.ui.view">
         <field name="name">product.template.inherit</field>
@@ -672,21 +672,21 @@
         </field>
     </record>
 
-    <record id="view_product_product_kanban_inherit" model="ir.ui.view">
-        <field name="name">product.product.inherit</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_kanban_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='tags']" position="before">
-                <ul>
-                    <li><strong>Giá niêm yết: <field name="extra_price"/></strong></li>
-                </ul>
-                <ul>
-                    <li><strong>Thực tế: <field name="qty_available"/> sản phẩm</strong></li>
-                </ul>
-            </xpath>
-        </field>
-    </record>
+<!--    <record id="view_product_product_kanban_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product.product.inherit</field>-->
+<!--        <field name="model">product.product</field>-->
+<!--        <field name="inherit_id" ref="product.product_kanban_view"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//div[@name='tags']" position="before">-->
+<!--                <ul>-->
+<!--                    <li><strong>Giá niêm yết: <field name="extra_price"/></strong></li>-->
+<!--                </ul>-->
+<!--                <ul>-->
+<!--                    <li><strong>Thực tế: <field name="qty_available"/> sản phẩm</strong></li>-->
+<!--                </ul>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
     <record id="view_product_category_form_inherit" model="ir.ui.view">
         <field name="name">product.category.inherit</field>
