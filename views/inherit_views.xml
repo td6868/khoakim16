@@ -118,7 +118,7 @@
                             <field name="order_id" invisible="1"/>
                             <field name="picking_id" invisible="1"/>
                             <field name="date_done"/>
-                            <field name="product_id"/>
+                            <field name="product_tmpl_id"/>
                             <field name="product_qty"/>
                             <field name="product_uom"/>
                             <field name="price_unit"/>
@@ -132,7 +132,7 @@
                                 <field name="order_id" invisible="1"/>
                                 <field name="picking_id" invisible="1"/>
                                 <field name="date_done"/>
-                                <field name="product_id"/>
+                                <field name="product_tmpl_id"/>
                                 <field name="product_qty"/>
                                 <field name="product_uom"/>
                                 <field name="price_unit"/>
@@ -232,6 +232,10 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
             </xpath>
 
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="before">
+                <field name="attr_value_ids" widget="many2many_tags"/>
+            </xpath>
+
             <xpath expr="//button[@name='action_preview_sale_order']" position="replace">
                 <button name="%(action_report_saleorder_customize)d" type="action" class="oe_stat_button" icon="fa-globe icon">
                     <div class="o_field_widget o_stat_info">
@@ -252,7 +256,7 @@
 <!--                </button>-->
 <!--            </xpath>-->
 
-            <xpath expr="//field[@name='order_line']/tree//field[@name='product_id']" position="before">
+            <xpath expr="//field[@name='order_line']/tree//field[@name='product_template_id']" position="before">
                 <field name="seq_cus"/>
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
             </xpath>
@@ -416,18 +420,18 @@
 
             <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="before">
                 <field name="declare_ok"/>
-                <field name="brand"/>
-                <field name="color"/>
+                <field name="attr_value_ids"/>
+                <field name="attr_value_cn"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="before">
                 <field name="declare_ok"/>
-                <field name="brand" invisible="1"/>
-                <field name="color" invisible="1"/>
+                <field name="attr_value_ids" invisible="1"/>
+                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/kanban//field[@name='product_qty']" position="before">
                 <field name="declare_ok"/>
-                <field name="brand" invisible="1"/>
-                <field name="color" invisible="1"/>
+                <field name="attr_value_ids" invisible="1"/>
+                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//button[@name='print_quotation']" position="replace">
             </xpath>
@@ -475,19 +479,19 @@
         </field>
     </record>
 
-    <record id="view_product_attribute_form_inherit" model="ir.ui.view">
-        <field name="name">product.attribute.form.inherit</field>
-        <field name="model">product.attribute</field>
-        <field name="inherit_id" ref="product.product_attribute_view_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="sequence"/>
-            </xpath>
-            <xpath expr="//field[@name='value_ids']/tree//field[@name='name']" position="after">
-                <field name="acode"/>
-            </xpath>
-        </field>
-    </record>
+<!--    <record id="view_product_attribute_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">product.attribute.form.inherit</field>-->
+<!--        <field name="model">product.attribute</field>-->
+<!--        <field name="inherit_id" ref="product.product_attribute_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='name']" position="after">-->
+<!--                <field name="sequence"/>-->
+<!--            </xpath>-->
+<!--            <xpath expr="//field[@name='value_ids']/tree//field[@name='name']" position="after">-->
+<!--                <field name="acode"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
     <record id="view_res_partner_form_inherit" model="ir.ui.view">
         <field name="name">res.partner.inherit</field>
@@ -641,7 +645,8 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='options']" position="after">
                 <div>
-                    <field name="url_img" label="URL"/>
+                    <field name="product_attr_tags" widget="many2many_tags"/>
+                    <field name="url_img"/>
                 </div>
             </xpath>
             <xpath expr="//field[@name='default_code']" position="replace">
@@ -945,33 +950,33 @@
 <!--    </record>-->
 
 <!--  purchase vendor tree view-->
-<!--    <record model="ir.ui.view" id="view_price_purchase_list_supplier_kk">-->
-<!--        <field name="name">Chi tiết bảng giá vốn</field>-->
-<!--        <field name="model">product.supplierinfo</field>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <tree string="Chi tiết bảng giá vốn" editable="bottom">-->
-<!--                <field name="partner_id" string="Nhà cung cấp"/>-->
-<!--                <field name="product_tmpl_id" string="Sản phẩm"/>-->
-<!--                <field name="product_id" string="Biến thế sản phẩm"/>-->
-<!--                <field name="product_uom" string="Đơn vị tính"/>-->
-<!--                <field name="price" string="Giá"/>-->
-<!--                <field name="currency_id" string="ĐVT"/>-->
-<!--                <field name="delay" string="Thời gian giao hàng"/>-->
-<!--                <field name="min_qty" string="Số lượng"/>-->
-<!--                <field name="company_id" string="Công ty"/>-->
-<!--            </tree>-->
-<!--        </field>-->
-<!--    </record>-->
+    <record model="ir.ui.view" id="view_price_purchase_list_supplier_kk">
+        <field name="name">Chi tiết bảng giá vốn</field>
+        <field name="model">product.supplierinfo</field>
+        <field name="arch" type="xml">
+            <tree string="Chi tiết bảng giá vốn" editable="bottom">
+                <field name="partner_id" string="Nhà cung cấp"/>
+                <field name="product_tmpl_id" string="Sản phẩm"/>
+                <field name="product_id" string="Biến thế sản phẩm"/>
+                <field name="product_uom" string="Đơn vị tính"/>
+                <field name="price" string="Giá"/>
+                <field name="currency_id" string="ĐVT"/>
+                <field name="delay" string="Thời gian giao hàng"/>
+                <field name="min_qty" string="Số lượng"/>
+                <field name="company_id" string="Công ty"/>
+            </tree>
+        </field>
+    </record>
 
 <!--  price list  tree view-->
     <record model="ir.ui.view" id="view_price_list_item_kk">
-        <field name="name">Chi tiết bảng giá</field>
+        <field name="name">product.pricelist.item.tree</field>
         <field name="model">product.pricelist.item</field>
         <field name="arch" type="xml">
             <tree string="Chi tiết bảng giá" editable="bottom">
                 <field name="product_tmpl_id" string="Sản phẩm" required="1"/>
-                <field name="product_id" string="Biến thể" groups="product.group_product_variant"
-                       domain="[('product_tmpl_id', '=', product_tmpl_id)]" options="{'no_create':1}"/>
+<!--                <field name="product_id" string="Biến thể" groups="product.group_product_variant"-->
+<!--                       domain="[('product_tmpl_id', '=', product_tmpl_id)]" options="{'no_create':1}"/>-->
                 <field name="min_quantity" string="Số lượng tối thiệu"/>
                 <field name="fixed_price" string="Giá"/>
                 <field name="currency_id" invisible="1"/>
@@ -988,11 +993,12 @@
 
     <!--  history orderline  tree view-->
     <record model="ir.ui.view" id="view_sale_order_line_history_kk">
-        <field name="name">Lịch sử đặt hàng</field>
+        <field name="name">sale.order.line.history.tree</field>
         <field name="model">sale.order.line</field>
         <field name="arch" type="xml">
             <tree string="Chi tiết báo giá/đơn hàng" editable="bottom">
                 <field name="state" string="Trạng thái" readonly="1"/>
+                <field name="product_template_id" string="Sản phẩm" readonly="1"/>
                 <field name="product_id" string="Sản phẩm" readonly="1"/>
                 <field name="name" string="Tên sản phẩm" readonly="1"/>
                 <field name="tax_id" string="Thuế" readonly="1" optional="hide"/>
@@ -1010,6 +1016,64 @@
             </tree>
         </field>
     </record>
+
+<!--    product temp attrs-->
+    <record model="ir.ui.view" id="view_product_template_attribute_kk">
+        <field name="name">product.template.attr.tree</field>
+        <field name="model">product.template.attr</field>
+        <field name="arch" type="xml">
+            <tree string="Thuộc tính sản phẩm">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="product_tmpl_ids" invisible="1"/>
+                <field name="chinese_name"/>
+<!--                <field name="count_prod"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_product_template_attribute_form_kk">
+        <field name="name">product.template.attr.form</field>
+        <field name="model">product.template.attr</field>
+        <field name="arch" type="xml">
+            <form string="Giá trị thuộc tính">
+                <sheet>
+<!--                    <div class="oe_button_box" name="button_box">-->
+<!--                        <button class="oe_stat_button" name="action_open_related_products"-->
+<!--                            type="object" icon="fa-bars"-->
+<!--                            attrs="{'invisible': [('number_related_products', '=', [])]}">-->
+<!--                        <div class="o_stat_info">-->
+<!--                            <span class="o_stat_value"><field name="number_related_products"/></span>-->
+<!--                            <span class="o_stat_text">Related Products</span>-->
+<!--                        </div>-->
+<!--                        </button>-->
+<!--                    </div>-->
+                    <group name="main_fields" class="o_label_nowrap">
+                        <label for="name" string="Tên thuộc tính"/>
+                        <field name="name" nolabel="1"/>
+                        <field name="chinese_name"/>
+                        <field name="on_print"/>
+                        <field name="product_tmpl_ids" widget="many2many_tags" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Giá trị thuộc tính" name="attribute_values">
+                            <field name="attr_value_ids" widget="one2many" nolabel="1">
+                                <tree string="Giá trị thuộc tính" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="attr_id" invisible="1"/>
+                                    <field name="display_name" invisible="1"/>
+                                    <field name="chinese_name"/>
+                                    <field name="acode"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 
 <!--    filter-->
     <record id="view_price_list_item_filter_kk" model="ir.ui.view">

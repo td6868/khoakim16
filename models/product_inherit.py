@@ -132,6 +132,7 @@ class ProductTemplate(models.Model):
     prod_code = fields.Char(string="Mã SP/NSX", required=False)
     product_attr_tags = fields.Many2many("product.template.attr.value",
                                          string="Giá trị thuộc tính")
+    display_name = fields.Char(string="Tên hiển thị", compute="_new_display_name")
     sale_ok = fields.Boolean('Có thể bán', default=False)
     purchase_ok = fields.Boolean('Có thể mua', default=False)
     appr_state = fields.Boolean('Trạng thái duyệt', default=False)
@@ -151,6 +152,18 @@ class ProductTemplate(models.Model):
             self.write({'appr_state': True})
         return rec
 
+    @api.depends('name', 'product_attr_tags')
+    def _new_display_name(self):
+        display_name = ''
+        if self.name:
+            display_name = self.name
+            if self.product_attr_tags:
+                display_name = display_name + "( "
+                for tag in self.product_attr_tags:
+                    display_name += tag.display_name
+                display_name = display_name + " )"
+        self.display_name = display_name
+
     def purchase_create_temp(self):
         if self.env.company.purc_comp_id:
             data = {
@@ -158,7 +171,7 @@ class ProductTemplate(models.Model):
                 "min_qty": 1.0,
                 "price": self.standard_price,
                 "sequence": 1,
-                "product_id": self.id,
+                "product_tmpl_id": self.id,
             }
             self.update({
                 "seller_id": data,
@@ -379,9 +392,11 @@ class ProductCategory(models.Model):
             for rec in categ_ids:
                 rec.check_categ_wp(wcapi)
 
-# class ProductProduct(models.Model):
-#     _inherit = 'product.product'
-#
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    product_attr_tags = fields.Many2many("product.template.attr.value",
+                                         string="Giá trị thuộc tính")
 #     prod_code = fields.Char(string="Mã SP/SX", compute='_get_temp_prod')
 #     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_attrs_code', store=True)
 #     sku_wp = fields.Char(string="ID WP")
@@ -411,7 +426,7 @@ class ProductCategory(models.Model):
 #                 "min_qty": 1.0,
 #                 "price": self.standard_price,
 #                 "sequence": 1,
-#                 "product_id": self.id,
+#                 "product_tmpl_id": self.id,
 #             }
 #             self.update({
 #                 "seller_id": data,
@@ -426,7 +441,7 @@ class ProductCategory(models.Model):
 #         df_pl = self.env['product.pricelist'].search([('type_pl','=','main')], limit=1)
 #         pl_item = self.env['product.pricelist.item']
 #         prod_price = pl_item.search([('pricelist_id', '=', df_pl.id),
-#                                     ('product_id', '=', self.id)], limit=1)
+#                                     ('product_tmpl_id', '=', self.id)], limit=1)
 #         if prod_price:
 #             if extra_price:
 #                 prod_price.write({'fixed_price': extra_price})
@@ -439,7 +454,7 @@ class ProductCategory(models.Model):
 #                         "applied_on": "0_product_variant",
 #                         "pricelist_id": df_pl.id,
 #                         "product_tmpl_id": prod_temp.id,
-#                         "product_id": prod_id.id,
+#                         "product_tmpl_id": prod_id.id,
 #                         "fixed_price": extra_price,
 #                     }
 #             pl_item.create(vals)
@@ -521,11 +536,11 @@ class ProductCategory(models.Model):
 #
 #     #get pricelist product
 #     def get_all_product_list(self):
-#         prod_prices = self.env['product.pricelist.item'].search(['|',('product_id', '=', self.id),
+#         prod_prices = self.env['product.pricelist.item'].search(['|',('product_tmpl_id', '=', self.id),
 #                                                                  ('applied_on', '=', '3_global'),
 #                                                                  ('pricelist_id.type_pl', '=', 'policy')]
 #                                                                 )
-#         main_price = self.env['product.pricelist.item'].search([('product_id', '=', self.id),
+#         main_price = self.env['product.pricelist.item'].search([('product_tmpl_id', '=', self.id),
 #                                                                  ('pricelist_id.type_pl', '=', 'main')],
 #                                                                limit=1)
 #         price_main = main_price.fixed_price or self.list_price
@@ -934,10 +949,10 @@ class PurchaseOrderLine(models.Model):
         string="KBHQ", default='no')
     qty_available = fields.Float(string="Tồn kho", related="product_id.qty_available")
     seq_cus = fields.Integer(string="STT", readonly=True)
-    # virtual_available = fields.Float(string="Khả dụng", related="product_id.virtual_available")
+    # virtual_available = fields.Float(string="Khả dụng", related="product_tmpl_id.virtual_available")
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="purchase_virtual_qty")
-    brand = fields.Char(string="Hãng")
-    color = fields.Char(string="Màu")
+    attr_value_ids = fields.Many2many('product.template.attr.value','product_id.product_attr_tags',string="Thuộc tính")
+    attr_value_cn = fields.Char(string = "Giá trị")
     note = fields.Text(string="Ghi chú")
     old_price_unit = fields.Float(string="Đơn giá")
 
@@ -957,29 +972,20 @@ class PurchaseOrderLine(models.Model):
     def purchase_virtual_qty(self):
         for line in self:
             # virtual_qty = ''
-            brand = 'Không có'
-            color = 'Không có'
             name = line.product_id.name
+            attr_value_cn = ''
 
             if line.product_id != False:
                 # virtual_qty = ("%s/%s") % (line.virtual_available, line.qty_available)
                 continue
 
-            attrs = line.product_id.product_template_attribute_value_ids
-            if attrs:
-                # print(attrs)
-                attr_name = ''
-                for a in attrs:
-                    if a.attribute_id.sequence == 0:
-                        brand = a.name
-                    if a.attribute_id.sequence == 1:
-                        color = a.name
-                    attr_name += ' ' + a.name + ' '
-                name = name + '(' + attr_name + ')'
+            if line.attr_value_ids:
+                for attr in line.attr_value_ids:
+                    attr_value_cn += attr.display_chinese_name +"\n"
+
             line.update({
-                "brand": brand,
-                "color": color,
                 "name": name,
+                "attr_value_cn": attr_value_cn,
             })
 
 class SaleOrderLine(models.Model):
@@ -988,8 +994,9 @@ class SaleOrderLine(models.Model):
     prod_image = fields.Binary(string="Ảnh sản phẩm", related="product_id.image_1920")
     qty_available = fields.Float(string="Tồn kho", related="product_id.qty_available")
     seq_cus = fields.Integer(string="STT", readonly=True)
-    # virtual_available = fields.Float(string="Khả dụng", related="product_id.virtual_available")
+    # virtual_available = fields.Float(string="Khả dụng", related="product_tmpl_id.virtual_available")
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="_virtual_qty")
+    attr_value_ids = fields.Many2many('product.template.attr.value','product_id.product_attr_tags',string="Thuộc tính")
     cus_discount = fields.Float(string='C.Khấu ($)')
     rename = fields.Boolean(string=False)
     old_price_unit = fields.Float(string='Đơn giá', readonly=False)
@@ -1018,7 +1025,7 @@ class SaleOrderLine(models.Model):
     #     vals = {}
     #     for line in self:
     #         if line.change_name:
-    #             name = line._new_product_name(line.product_id)
+    #             name = line._new_product_name(line.product_tmpl_id)
     #             vals[line] = {
     #                     "name": name,
     #                     "change_name": False,
@@ -1110,13 +1117,14 @@ class SaleOrder(models.Model):
         })
 
     # đổi tên sản phẩm
-    def _new_product_name(self, product_id):
-        name = product_id.name
-        attr_prod = product_id.product_template_attribute_value_ids
+    def _new_product_name(self, product_tmpl_id):
+        name = product_tmpl_id.name
+        attr_prod = product_tmpl_id.product_template_attribute_value_ids
         if attr_prod:
             attr_name = ''
             for a in attr_prod:
-                attr_name += a.name + ' '
+                if a.on_print:
+                    attr_name += a.name + ' '
             name = name + ' ( ' + attr_name + ' )'
         return name
 
@@ -1130,7 +1138,7 @@ class SaleOrder(models.Model):
 
             check_name = line.name.find("[", 0, 2)
             if check_name != -1:
-                new_name = self._new_product_name(line.product_id)
+                new_name = self._new_product_name(line.product_tmpl_id)
                 line.write({
                     "name": new_name,
                     'rename': True,
@@ -1267,7 +1275,7 @@ class SaleOrder(models.Model):
     #     for l in self.order_line:
     #         discount = l.discount or l.cus_discount
     #         if discount > 0.0:
-    #             return l.product_id.name
+    #             return l.product_tmpl_id.name
     #     return False
 
     #xét duyệt báo giá
@@ -1461,7 +1469,7 @@ class StockPicking(models.Model):
         if self.picking_type_code == 'outgoing':
             if self.move_ids_without_package:
                 for line in self.move_ids_without_package:
-                    prod = line.product_id
+                    prod = line.product_tmpl_id
                     if (prod.weight == False or prod.volumn == False ):
                         raise UserError(("Vui lòng kiểm tra lại sản phẩm %s chưa có khối lượng hoặc thể tích") % (prod.name))
         self.action_confirm()
@@ -1488,13 +1496,13 @@ class StockMoveLine(models.Model):
             total_amount = 0
             purchase_price = 0
             if sale_id:
-                product_id = self.env['sale.order.line'].search([('order_id', '=', sale_id.id),
-                                                            ('product_id', '=', line.product_id.id)], limit=1)
-                price_unit = product_id.price_unit
-                purchase_price = product_id.purchase_price
-                if product_id.product_uom_qty:
-                    price_tax = (float(product_id.price_tax) / float(product_id.product_uom_qty)) * line.qty_done
-                total_amount = price_tax + (float(product_id.price_unit) * line.qty_done)
+                product_tmpl_id = self.env['sale.order.line'].search([('order_id', '=', sale_id.id),
+                                                            ('product_template_id', '=', line.product_id.id)], limit=1)
+                price_unit = product_tmpl_id.price_unit
+                purchase_price = product_tmpl_id.purchase_price
+                if product_tmpl_id.product_uom_qty:
+                    price_tax = (float(product_tmpl_id.price_tax) / float(product_tmpl_id.product_uom_qty)) * line.qty_done
+                total_amount = price_tax + (float(product_tmpl_id.price_unit) * line.qty_done)
             line.write({
                             'price_unit': price_unit,
                             'price_tax': price_tax,
@@ -1505,7 +1513,7 @@ class StockMoveLine(models.Model):
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    prod_image = fields.Binary(string="Ảnh sản phẩm", related="product_id.image_1920")
+    prod_image = fields.Binary(string="Ảnh sản phẩm", related="product_tmpl_id.image_1920")
 
 class StockLandedCost(models.Model):
     _inherit = 'stock.landed.cost'
@@ -1534,7 +1542,7 @@ class StockLandedCostLines(models.Model):
     @api.onchange('provisional', 'total_weight', 'split_method')
     def total_weight_compute(self):
         if self.provisional and self.split_method == 'by_weight':
-            total_price = self.product_id.standard_price * self.total_weight
+            total_price = self.product_tmpl_id.standard_price * self.total_weight
             self.price_unit = total_price
 
 class ReturnOrderLine(models.Model):
@@ -1544,9 +1552,9 @@ class ReturnOrderLine(models.Model):
     order_id = fields.Many2one('sale.order', required=True, ondelete="cascade")
     picking_id = fields.Many2one('stock.picking', required=True, ondelete="cascade")
     date_done = fields.Datetime(string='Ngày thực hiện', required=True)
-    # product_id = fields.Many2one('product.product', string="Sản phẩm")
-    product_temp_id = fields.Many2one('product.template', string="Sản phẩm")
-    product_uom = fields.Many2one('uom.uom', string='Đơn vị', related="product_id.uom_id")
+    # product_tmpl_id = fields.Many2one('product.product', string="Sản phẩm")
+    product_tmpl_id = fields.Many2one('product.template', string="Sản phẩm")
+    product_uom = fields.Many2one('uom.uom', string='Đơn vị', related="product_tmpl_id.uom_id")
     product_qty = fields.Float(string='Số lương', default=1.0)
     price_unit = fields.Float(string="Đơn giá", compute="_compute_price_total")
     price_tax = fields.Float(string="Tổng thuế", compute="_compute_price_total")
@@ -1564,12 +1572,12 @@ class ReturnOrderLine(models.Model):
     #         else:
     #             rec.done_return = False
 
-    @api.depends('order_id', 'product_id', 'product_qty')
+    @api.depends('order_id', 'product_tmpl_id', 'product_qty')
     def _compute_price_total(self):
         sale_order = self.env['sale.order.line']
         for line in self:
             so_line = sale_order.search([('order_id', '=', line.order_id.id),
-                                         ('product_id', '=', line.product_id.id)], limit=1)
+                                         ('product_tmpl_id', '=', line.product_tmpl_id.id)], limit=1)
             if so_line:
                 price_tax = (float(so_line.price_tax) / float(so_line.product_uom_qty)) * line.product_qty
                 total_amount = float(so_line.price_unit) * float(line.product_qty) + price_tax
@@ -1597,7 +1605,7 @@ class StockReturnPicking(models.TransientModel):
                         "date_done": fields.Datetime.now(),
                     }
             for line in picking.move_ids_without_package:
-                data["product_id"] = line.product_id.id
+                data["product_tmpl_id"] = line.product_tmpl_id.id
                 data["product_qty"] = line.product_uom_qty
             self.env["return.order.line"].create(data)
         return new_picking, pick_type_id
@@ -1608,8 +1616,8 @@ class QuickSaleOrderLine(models.Model):
 
     order_id = fields.Many2one('sale.order', required=True, ondelete="cascade")
     so_line_id = fields.Integer(sting="Dòng báo giá")
-    # product_id = fields.Many2one('product.product', string="Sản phẩm")
-    product_temp_id = fields.Many2one('product.template', string="Sản phẩm")
+    # product_tmpl_id = fields.Many2one('product.product', string="Sản phẩm")
+    product_tmpl_id = fields.Many2one('product.template', string="Sản phẩm")
     catg_prod_id = fields.Many2one('product.category', string="Danh mục")
     prod_code = fields.Char(string='Mã sản phẩm')
     seq_cus = fields.Integer(string="STT", readonly=True)
@@ -1693,31 +1701,57 @@ class QuickSaleOrderLine(models.Model):
 class ProductTemplateAttributeValue(models.Model):
     _name = 'product.template.attr.value'
     _description = 'Giá trị thuộc tính sản phẩm'
-    _order = 'attribute_id, sequence, id'
+    _rec = 'display_name'
 
     name = fields.Char(string="Giá trị thuộc tính", required=True)
-    display_name = fields.Char(string="Giá trị thuộc tính", compute="_compute_display_name")
+    display_name = fields.Char(string="Giá trị thuộc tính",
+                               compute="_compute_display_name")
+    chinese_name = fields.Char(string="Tiếng Trung")
+    display_chinese_name = fields.Char(string="Giá trị thuộc tính",
+                                       compute="_compute_display_name")
     acode = fields.Char(string="Mã biến thể", required=True)
     sequence = fields.Integer(string="Quy tắc mã")
-    attribute_id = fields.Many2many('product.template.attribute',
+    attr_id = fields.Many2one('product.template.attr',
                                     string="Thuộc tính")
 
-    @api.depends('attribute_id', 'name')
+    @api.depends('attr_id', 'name', 'chinese_name')
     def _compute_display_name(self):
-        if self.name and self.attribute_id:
-            self.display_name = self.attribute_id.name + " : " + self.name
+        for rec in self:
+            display_name = ''
+            display_chinese_name = ''
+
+            if rec.attr_id:
+                if rec.name:
+                    display_name = rec.attr_id.name + " : " + rec.name
+                if rec.chinese_name:
+                    display_chinese_name = rec.attr_id.chinese_name + " : " + rec.chinese_name
+
+            rec.display_name = display_name
+            rec.display_chinese_name = display_chinese_name
 
 class ProductTemplateAttribute(models.Model):
     _name = 'product.template.attr'
     _description = 'Thuộc tính sản phẩm'
-    _order = 'sequence, id'
 
     name = fields.Char(string="Thuộc tính", required=True)
     sequence = fields.Integer(string="Quy tắc mã")
+    chinese_name = fields.Char(string="Tên Trung quốc", required=True)
+    on_print = fields.Boolean(string="Hiện trên bản in", default=True)
     product_tmpl_ids = fields.Many2many("product.template",string="Sản phẩm liên quan")
-    value_ids = fields.One2many("product.template.attr.value", "attribute_id",
+    attr_value_ids = fields.One2many('product.template.attr.value', 'attr_id',
                                          string="Giá trị thuộc tính")
-    
+    # count_values = fields.Integer(string="Số lượng giá trị", compute="_compute_count")
+    # count_prod = fields.Integer(string="Số lượng sản phẩm", compute="_compute_count")
+    #
+    # @api.depends("value_ids", "count_prod")
+    # def _compute_count(self):
+    #     count_prod = 0
+    #     count_values = 0
+    #     self.write({
+    #         "count_prod": count_prod,
+    #         "count_values": count_values,
+    #     })
+    #     return True
 
 # Module tính giá
 

@@ -7,3 +7,5 @@ access_purchase_tags,purchase.tags,model_purchase_tags,,1,1,1,1
 access_sale_order_quick_line,sale.order.quick.line,model_sale_order_quick_line,,1,1,1,1
 access_return_order_line,return.order.line,model_return_order_line,,1,1,1,1
 access_std_price_change,std.price.change,model_std_price_change,,1,1,1,1
+access_product_template_attr_value,access.product.template.attr.value,model_product_template_attr_value,,1,1,1,1
+access_product_template_attr,access.product.template.attr,model_product_template_attr,,1,1,1,1
