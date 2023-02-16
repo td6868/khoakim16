@@ -14,24 +14,24 @@ import base64
 import urllib.request
 import gspread
 import time
-from gspread.cell import Cell
-
-INFO = {
-          "type": "service_account",
-          "project_id": "gsodsync",
-          "private_key_id": "23521eba50f0f7e57f857777fb40dbc40a0227dc",
-          "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDQ3Pkn7iuLvfj1\nQ3Q9IRYj847mxCzQM+vxCQxFN0q8zISwf3C0AWvoacDc/XmMaRLd5bno3Eg3NmFi\nt1JePA7yszZ0eBX5+EvNgoLCafmSVeWMZyyV4C92bqu8QZ/MXe7go+6Nn1z4khni\nXKquyj1k/XJj+hZJQ5H5hsCDEKwFxKcAKEn4XzBYer+bntjcBrvt0BW9A/QiB/nY\niqQvu+QwZ11bTsK6felHLayzeckgzeh99JWR7GKnOMvXcujh6F2igzAlrkr1SeV3\nKWLQ8I8zF7vSPxQziSztlDWnzH5Twa2zqsoSa/STB2kFjikBGKDiaiXny+EHl2YL\nmhgW8jzhAgMBAAECggEALDTI62Gmh9Iykj6vqIyLMhrHwSH+VibXJlIC7ddxExq6\nbtzaTs8KNsvDTUK86jIHEz4fJiERi9YPsKQaY+WUSFwUB3yvMhQSfzHDWUCy2P0j\nM59WuXYUtZ1g7dx55Phwqc0onYMAW4AYyGdSnOIjMm/OOUjiVKlfiQ+zSUpLDoEZ\n2Ua1wCaLsWqPtKMZjhM3M8jupCLjZBV38DhoRN/ykj5Cn4XGq54O5ZYRLswDhkYP\nHxCH3XrzahdrYv0B2dLMru8HOhs75wbNYDwY9NV9cqtWKnBHHuqcIeGlXiPwH+4J\ngVfVcPDb46ilXJahPrc8GQRktXf3LHMpQKfA8GEz/QKBgQDxnjPJAkRL1AvTKO3o\nBoj2RhlUAYvNhClR/VsCEAsA7VUWR5AMXxdEjSsMPWXnLorQgWw9duz0StMA1R7N\nV+xtbrPzi+Om1fl3+LspqWgHCr9eu9bcveSFuFtd+arcNEyhtV3thI82hcZab0J0\nfm1igWSR+DMWKXsOoOfqTutczwKBgQDdS6Z0LJAEDxY5Ep0whYbUKU7OVhm4rRkt\ntAQ8GFdxXi+f8he9SgVHn7FoP1pJEma5eOAjuk+3NH/TRQ6uD/948jRfEtpYx/Mz\nPyyEZl3y/r/1eyFo9E9i98S21TcOOIRk3ozQlJyObSPzrJvhS9P15gYB5eBtB+Nt\n6vHuu+YXTwKBgQDrOaSaze0lkZPNiKxM1ofikw43faXYeBEuNCS01l+QEH5kyVjQ\n4oapg3HkYaXisqoMIeP51t0LXAkeZ12sdivDwiHJOmhwVSKhDPNRtQ6ExI7YsLCW\niPyAvqGc1OLlrLjqOcLu6L3wS7527phZB3iAjQ4XGfbKXani7P27XAfBewKBgQDN\nHVaOrdNa/8TgZ6FtHQbI1fTmiaXTqBYDZ6zZKtK6EMvh29onKFnWdm1QrA/6VOUE\nGsbeNs22iSHF6Gdf7RIlv5HNYcMisUp5gJ+5pMyF85xnY5anGnQOzor10JD0TGxi\ntmkc1/J4jS7aqG3fmJJBhNCip7iqNrqV4kQWvPDbPwKBgG1TjB99rHM6WY3GoBHd\nz6FJcdJXRpjYpEKE2nWHt8rec9P61fYIrYnk/4zWHm0kbQlMxUbVoaiuzhAa0XcH\nge3VJpBmjvOqJDtcV7EyOadAIw6HgXSeKUwosvl/o4l/v7ByDFkuth4tLE3Fo7Sg\nCK5m9S/urxMLC9As8J45S21q\n-----END PRIVATE KEY-----\n",
-          "client_email": "odoogsheetkk@gsodsync.iam.gserviceaccount.com",
-          "client_id": "116816502838220913532",
-          "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-          "token_uri": "https://oauth2.googleapis.com/token",
-          "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-          "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/odoogsheetkk%40gsodsync.iam.gserviceaccount.com"
-        }
-SA = gspread.service_account_from_dict(INFO)
-WB = SA.open("SyncOdooProd")
-WS_PROD = WB.worksheet("MasterProd")
-WS_CATG = WB.worksheet("MasterCatg")
+# from gspread.cell import Cell
+#
+# INFO = {
+#           "type": "service_account",
+#           "project_id": "gsodsync",
+#           "private_key_id": "23521eba50f0f7e57f857777fb40dbc40a0227dc",
+#           "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDQ3Pkn7iuLvfj1\nQ3Q9IRYj847mxCzQM+vxCQxFN0q8zISwf3C0AWvoacDc/XmMaRLd5bno3Eg3NmFi\nt1JePA7yszZ0eBX5+EvNgoLCafmSVeWMZyyV4C92bqu8QZ/MXe7go+6Nn1z4khni\nXKquyj1k/XJj+hZJQ5H5hsCDEKwFxKcAKEn4XzBYer+bntjcBrvt0BW9A/QiB/nY\niqQvu+QwZ11bTsK6felHLayzeckgzeh99JWR7GKnOMvXcujh6F2igzAlrkr1SeV3\nKWLQ8I8zF7vSPxQziSztlDWnzH5Twa2zqsoSa/STB2kFjikBGKDiaiXny+EHl2YL\nmhgW8jzhAgMBAAECggEALDTI62Gmh9Iykj6vqIyLMhrHwSH+VibXJlIC7ddxExq6\nbtzaTs8KNsvDTUK86jIHEz4fJiERi9YPsKQaY+WUSFwUB3yvMhQSfzHDWUCy2P0j\nM59WuXYUtZ1g7dx55Phwqc0onYMAW4AYyGdSnOIjMm/OOUjiVKlfiQ+zSUpLDoEZ\n2Ua1wCaLsWqPtKMZjhM3M8jupCLjZBV38DhoRN/ykj5Cn4XGq54O5ZYRLswDhkYP\nHxCH3XrzahdrYv0B2dLMru8HOhs75wbNYDwY9NV9cqtWKnBHHuqcIeGlXiPwH+4J\ngVfVcPDb46ilXJahPrc8GQRktXf3LHMpQKfA8GEz/QKBgQDxnjPJAkRL1AvTKO3o\nBoj2RhlUAYvNhClR/VsCEAsA7VUWR5AMXxdEjSsMPWXnLorQgWw9duz0StMA1R7N\nV+xtbrPzi+Om1fl3+LspqWgHCr9eu9bcveSFuFtd+arcNEyhtV3thI82hcZab0J0\nfm1igWSR+DMWKXsOoOfqTutczwKBgQDdS6Z0LJAEDxY5Ep0whYbUKU7OVhm4rRkt\ntAQ8GFdxXi+f8he9SgVHn7FoP1pJEma5eOAjuk+3NH/TRQ6uD/948jRfEtpYx/Mz\nPyyEZl3y/r/1eyFo9E9i98S21TcOOIRk3ozQlJyObSPzrJvhS9P15gYB5eBtB+Nt\n6vHuu+YXTwKBgQDrOaSaze0lkZPNiKxM1ofikw43faXYeBEuNCS01l+QEH5kyVjQ\n4oapg3HkYaXisqoMIeP51t0LXAkeZ12sdivDwiHJOmhwVSKhDPNRtQ6ExI7YsLCW\niPyAvqGc1OLlrLjqOcLu6L3wS7527phZB3iAjQ4XGfbKXani7P27XAfBewKBgQDN\nHVaOrdNa/8TgZ6FtHQbI1fTmiaXTqBYDZ6zZKtK6EMvh29onKFnWdm1QrA/6VOUE\nGsbeNs22iSHF6Gdf7RIlv5HNYcMisUp5gJ+5pMyF85xnY5anGnQOzor10JD0TGxi\ntmkc1/J4jS7aqG3fmJJBhNCip7iqNrqV4kQWvPDbPwKBgG1TjB99rHM6WY3GoBHd\nz6FJcdJXRpjYpEKE2nWHt8rec9P61fYIrYnk/4zWHm0kbQlMxUbVoaiuzhAa0XcH\nge3VJpBmjvOqJDtcV7EyOadAIw6HgXSeKUwosvl/o4l/v7ByDFkuth4tLE3Fo7Sg\nCK5m9S/urxMLC9As8J45S21q\n-----END PRIVATE KEY-----\n",
+#           "client_email": "odoogsheetkk@gsodsync.iam.gserviceaccount.com",
+#           "client_id": "116816502838220913532",
+#           "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+#           "token_uri": "https://oauth2.googleapis.com/token",
+#           "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+#           "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/odoogsheetkk%40gsodsync.iam.gserviceaccount.com"
+#         }
+# SA = gspread.service_account_from_dict(INFO)
+# WB = SA.open("SyncOdooProd")
+# WS_PROD = WB.worksheet("MasterProd")
+# WS_CATG = WB.worksheet("MasterCatg")
 
 def next_available_row(worksheet):
     str_list = list(filter(None, worksheet.col_values(1)))
@@ -129,9 +129,10 @@ class ProductTemplate(models.Model):
     url_img = fields.Char(string="URL Ảnh 1")
     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_code', store=True)
     wp_ok = fields.Boolean(string="Khả dụng ở website")
-    prod_code = fields.Char(string="Mã SP/NSX", required=False)
+    prod_code = fields.Char(string="Mã SP/NSX", required=True)
     product_attr_tags = fields.Many2many("product.template.attr.value",
-                                         string="Giá trị thuộc tính")
+                                         string="Giá trị thuộc tính",
+                                         required=True)
     display_name = fields.Char(string="Tên hiển thị", compute="_new_display_name")
     sale_ok = fields.Boolean('Có thể bán', default=False)
     purchase_ok = fields.Boolean('Có thể mua', default=False)
@@ -142,26 +143,16 @@ class ProductTemplate(models.Model):
     url_img5 = fields.Char(string="URL Ảnh 5")
     # product_ok = fields.Boolean('Là sản phẩm', default=False)
 
-    @api.model
-    def create(self, vals):
-        rec = super(ProductTemplate, self).create(vals)
-        # if self.wp_ok == True:
-        #     self.update_product_wp()
-        check_pass = self.check_perm_product_temp()
-        if check_pass:
-            self.write({'appr_state': True})
-        return rec
-
     @api.depends('name', 'product_attr_tags')
     def _new_display_name(self):
         display_name = ''
         if self.name:
             display_name = self.name
             if self.product_attr_tags:
-                display_name = display_name + "( "
+                display_name = display_name + " ( "
                 for tag in self.product_attr_tags:
-                    display_name += tag.display_name
-                display_name = display_name + " )"
+                    display_name += tag.display_name + " "
+                display_name = display_name + ")"
         self.display_name = display_name
 
     def purchase_create_temp(self):
@@ -179,28 +170,17 @@ class ProductTemplate(models.Model):
 
     # def change_name(self):
 
-    @api.onchange('prod_code')
-    def action_duplicate_code(self):
-        if self.type == 'product':
-            if self.prod_code:
-                dup_code = self.env['product.template'].search([('prod_code', '=', self.prod_code)])
-                if dup_code:
-                    code = self.prod_code
-                    self.prod_code = False
-                    return {
-                        'warning': {
-                                        'title': ('Trùng sản phẩm'),
-                                        'message': (("Mã %s đã bị trùng với sản phẩm %s, vui lòng chọn mã khác") % (code, dup_code.name))
-                                    },
-                    }
-
     @api.depends('categ_id', 'prod_code')
     def _gen_product_code(self):
         for prod in self:
+            default_code = prod.prod_code or ''
             if prod.categ_id:
-                prod.default_code = '%s%s' % (prod.categ_id.cate_code or '', prod.prod_code or '')
-            else:
-                prod.default_code = prod.prod_code or ''
+                default_code = '%s%s' % (prod.categ_id.cate_code or '', prod.prod_code or '')
+
+            for tag in prod.product_attr_tags:
+                default_code += tag.acode
+
+            prod.default_code = default_code
 
     # @api.onchange('url_img')
     # def onchange_image(self):
@@ -275,6 +255,20 @@ class ProductTemplate(models.Model):
                 },
             }
 
+    # def action_check_duplicate_code(self):
+    #     if self.product_attr_tags != False:
+    #         return True
+
+    @api.model
+    def create(self, vals):
+        rec = super(ProductTemplate, self).create(vals)
+        # if self.wp_ok == True:
+        #     self.update_product_wp()
+        check_pass = self.check_perm_product_temp()
+        if check_pass:
+            self.write({'appr_state': True})
+        return rec
+
 # class ProductAttributeValues(models.Model):
 #     _inherit = 'product.attribute.value'
 #
@@ -319,20 +313,21 @@ class ProductCategory(models.Model):
 
     #Update gsheet
     def update_catg_gsheet(self, catg_ids):
-        time_update = fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        for rec in catg_ids:
-            if rec.wp_ok:
-                cell = WS_CATG.find(query=str(rec.id), in_row=2)
-                vals = [time_update, rec.id, rec.name, rec.ccode, rec.parent_id.name]
-                if cell:
-                    row = cell.row
-                else:
-                    row = next_available_row(WS_CATG)
-                cells = []
-                for i in range(len(vals)):
-                    cells.append(Cell(row=int(row), col=i + 1, value=vals[i]))
-                WS_CATG.update_cells(cells)
-                time.sleep(2)
+        # time_update = fields.Datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # for rec in catg_ids:
+        #     if rec.wp_ok:
+        #         cell = WS_CATG.find(query=str(rec.id), in_row=2)
+        #         vals = [time_update, rec.id, rec.name, rec.ccode, rec.parent_id.name]
+        #         if cell:
+        #             row = cell.row
+        #         else:
+        #             row = next_available_row(WS_CATG)
+        #         cells = []
+        #         for i in range(len(vals)):
+        #             cells.append(Cell(row=int(row), col=i + 1, value=vals[i]))
+        #         WS_CATG.update_cells(cells)
+        #         time.sleep(2)
+        return True
 
     # Đồng bộ hoá gsheet
     def sync_odoo_catg_gsheet(self):
@@ -396,7 +391,10 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     product_attr_tags = fields.Many2many("product.template.attr.value",
+                                         related="product_tmpl_id.product_attr_tags",
                                          string="Giá trị thuộc tính")
+    display_name = fields.Char(string="Tên hiển thị", related="product_tmpl_id.display_name")
+
 #     prod_code = fields.Char(string="Mã SP/SX", compute='_get_temp_prod')
 #     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_attrs_code', store=True)
 #     sku_wp = fields.Char(string="ID WP")
@@ -951,7 +949,7 @@ class PurchaseOrderLine(models.Model):
     seq_cus = fields.Integer(string="STT", readonly=True)
     # virtual_available = fields.Float(string="Khả dụng", related="product_tmpl_id.virtual_available")
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="purchase_virtual_qty")
-    attr_value_ids = fields.Many2many('product.template.attr.value','product_id.product_attr_tags',string="Thuộc tính")
+    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags",string="Thuộc tính")
     attr_value_cn = fields.Char(string = "Giá trị")
     note = fields.Text(string="Ghi chú")
     old_price_unit = fields.Float(string="Đơn giá")
@@ -996,18 +994,12 @@ class SaleOrderLine(models.Model):
     seq_cus = fields.Integer(string="STT", readonly=True)
     # virtual_available = fields.Float(string="Khả dụng", related="product_tmpl_id.virtual_available")
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="_virtual_qty")
-    attr_value_ids = fields.Many2many('product.template.attr.value','product_id.product_attr_tags',string="Thuộc tính")
+    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags", string="Thuộc tính")
     cus_discount = fields.Float(string='C.Khấu ($)')
-    rename = fields.Boolean(string=False)
+    # rename = fields.Boolean(string=False)
     old_price_unit = fields.Float(string='Đơn giá', readonly=False)
     low_price = fields.Boolean(default=False)
     note = fields.Char(string='Ghi chú')
-
-    @api.onchange('product_id')
-    def _check_rename(self):
-        if self.rename:
-            return True
-        self.rename = True
 
     @api.onchange('old_price_unit', 'product_uom_qty')
     def _onchange_price_custom(self):
@@ -1117,33 +1109,33 @@ class SaleOrder(models.Model):
         })
 
     # đổi tên sản phẩm
-    def _new_product_name(self, product_tmpl_id):
-        name = product_tmpl_id.name
-        attr_prod = product_tmpl_id.product_template_attribute_value_ids
-        if attr_prod:
-            attr_name = ''
-            for a in attr_prod:
-                if a.on_print:
-                    attr_name += a.name + ' '
-            name = name + ' ( ' + attr_name + ' )'
-        return name
-
-    def apply_all_rename(self):
-        if self.order_line == False:
-            return False
-
-        for line in self.order_line:
-            if line.rename:
-                continue
-
-            check_name = line.name.find("[", 0, 2)
-            if check_name != -1:
-                new_name = self._new_product_name(line.product_tmpl_id)
-                line.write({
-                    "name": new_name,
-                    'rename': True,
-                })
-        return True
+    # def _new_product_name(self, product_tmpl_id):
+    #     name = product_tmpl_id.name
+    #     attr_prod = product_tmpl_id.product_template_attribute_value_ids
+    #     if attr_prod:
+    #         attr_name = ''
+    #         for a in attr_prod:
+    #             if a.on_print:
+    #                 attr_name += a.name + ' '
+    #         name = name + ' ( ' + attr_name + ' )'
+    #     return name
+    #
+    # def apply_all_rename(self):
+    #     if self.order_line == False:
+    #         return False
+    #
+    #     for line in self.order_line:
+    #         if line.rename:
+    #             continue
+    #
+    #         check_name = line.name.find("[", 0, 2)
+    #         if check_name != -1:
+    #             new_name = self._new_product_name(line.product_tmpl_id)
+    #             line.write({
+    #                 'name': new_name,
+    #                 'rename': True,
+    #             })
+    #     return True
 
     # kiem tra chi phí
     def check_cost_product(self):
@@ -1376,13 +1368,13 @@ class SaleOrder(models.Model):
     def create(self, vals):
         rec = super(SaleOrder, self).create(vals)
         self.apply_all_line()
-        self.apply_all_rename()
+        # self.apply_all_rename()
         return rec
 
     def write(self, vals):
         rec = super(SaleOrder, self).write(vals)
         self.apply_all_line()
-        self.apply_all_rename()
+        # self.apply_all_rename()
         return rec
 
 class ResCompanyAccountLine(models.Model):
@@ -1701,7 +1693,7 @@ class QuickSaleOrderLine(models.Model):
 class ProductTemplateAttributeValue(models.Model):
     _name = 'product.template.attr.value'
     _description = 'Giá trị thuộc tính sản phẩm'
-    _rec = 'display_name'
+    _rec_name = 'display_name'
 
     name = fields.Char(string="Giá trị thuộc tính", required=True)
     display_name = fields.Char(string="Giá trị thuộc tính",
@@ -1709,6 +1701,7 @@ class ProductTemplateAttributeValue(models.Model):
     chinese_name = fields.Char(string="Tiếng Trung")
     display_chinese_name = fields.Char(string="Giá trị thuộc tính",
                                        compute="_compute_display_name")
+    color = fields.Integer(string="color")
     acode = fields.Char(string="Mã biến thể", required=True)
     sequence = fields.Integer(string="Quy tắc mã")
     attr_id = fields.Many2one('product.template.attr',

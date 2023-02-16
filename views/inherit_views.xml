@@ -232,10 +232,6 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
             </xpath>
 
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="before">
-                <field name="attr_value_ids" widget="many2many_tags"/>
-            </xpath>
-
             <xpath expr="//button[@name='action_preview_sale_order']" position="replace">
                 <button name="%(action_report_saleorder_customize)d" type="action" class="oe_stat_button" icon="fa-globe icon">
                     <div class="o_field_widget o_stat_info">
@@ -261,21 +257,6 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
             </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="attributes">-->
-<!--                <attribute name="readonly">1</attribute>-->
-<!--                <attribute name="force_save">1</attribute>-->
-<!--            </xpath>-->
-<!--            -->
-<!--            <xpath expr="//field[@name='order_line']/kanban//field[@name='price_unit']" position="attributes">-->
-<!--                <attribute name="readonly">1</attribute>-->
-<!--                <attribute name="force_save">1</attribute>-->
-<!--            </xpath>-->
-<!--            -->
-<!--            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="attributes">-->
-<!--                <attribute name="readonly">1</attribute>-->
-<!--                <attribute name="force_save">1</attribute>-->
-<!--            </xpath>-->
-
             <xpath expr="//field[@name='order_line']/kanban//field[@name='name']" position="before">
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
             </xpath>
@@ -295,19 +276,17 @@
                 <field name="price_unit" invisible="1"/>
             </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/form//field[@name='discount']" position="after">-->
-<!--                <field name="cus_discount"/>-->
-<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
-<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
-<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
-<!--            </xpath>-->
+            <xpath expr="//field[@name='order_line']/form//field[@name='name']" position="after">
+                <field name="attr_value_ids" widget="many2many_tags"/>
+            </xpath>
 
-<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='discount']" position="after">-->
-<!--                <field name="cus_discount"/>-->
-<!--                <field name="new_price_unit" force_save="1" readonly="1"/>-->
-<!--                <field name="price_unit" attrs="{'force_save': True, 'readonly':True}"/>-->
-<!--                <field name="cur_price_unit" force_save="1" readonly="1"/>-->
-<!--            </xpath>-->
+            <xpath expr="//field[@name='order_line']/tree//field[@name='name']" position="after">
+                <field name="attr_value_ids" widget="many2many_tags"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/kanban//field[@name='name']" position="after">
+                <field name="attr_value_ids" widget="many2many_tags"/>
+            </xpath>
 
             <xpath expr="//field[@name='order_line']/kanban/templates//t[@t-name='kanban-box']//div[1]//t[1]" position="before">
 <!--                <field name="prod_image" widget="image"/>-->
@@ -396,13 +375,13 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
             </xpath>
 
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="after">
-                <field name="qty_available"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="after">-->
+<!--                <field name="qty_available"/>-->
+<!--            </xpath>-->
 
-            <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="after">
-                <field name="qty_available"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="after">-->
+<!--                <field name="qty_available"/>-->
+<!--            </xpath>-->
 
             <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="replace">
                 <field name="old_price_unit"/>
@@ -419,18 +398,21 @@
 <!--            </div>-->
 
             <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="before">
+                <field name="attr_value_ids" widget="many2many_tags"/>
                 <field name="declare_ok"/>
-                <field name="attr_value_ids"/>
-                <field name="attr_value_cn"/>
+                <field name="qty_available"/>
+                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="before">
+                <field name="attr_value_ids" widget="many2many_tags"/>
                 <field name="declare_ok"/>
-                <field name="attr_value_ids" invisible="1"/>
+                <field name="qty_available"/>
                 <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/kanban//field[@name='product_qty']" position="before">
                 <field name="declare_ok"/>
-                <field name="attr_value_ids" invisible="1"/>
+                <field name="qty_available"/>
+                <field name="attr_value_ids" widget="many2many_tags"/>
                 <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//button[@name='print_quotation']" position="replace">
@@ -645,7 +627,6 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='options']" position="after">
                 <div>
-                    <field name="product_attr_tags" widget="many2many_tags"/>
                     <field name="url_img"/>
                 </div>
             </xpath>
@@ -654,6 +635,7 @@
                 <field name="default_code" force_save="1" readonly="1"/>
             </xpath>
             <xpath expr="//field[@name='barcode']" position="after">
+                <field name="product_attr_tags" widget="many2many_tags" options="{'color_field': 'color','no_create_edit': True, 'no_create':True, 'no_open':True}"/>
                 <field name="wp_ok"/>
                 <field name="appr_state" invisible="1"/>
             </xpath>
@@ -674,6 +656,28 @@
                         groups="khoakim_customize.group_approval_product_temp"/>
             </xpath>
 
+        </field>
+    </record>
+
+    <record id="view_product_template_tree_inherit_kk" model="ir.ui.view">
+        <field name="name">product.template.tree.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='default_code']" position="after">
+                <field name="product_attr_tags" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_product_template_kanban_inherit_kk" model="ir.ui.view">
+        <field name="name">product.template.kanban.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="/kanban/templates//t[@t-name='kanban-box']//div[1]//div[2]//t[1]" position="after">
+                <field name="product_attr_tags" widget="many2many_tags"/>
+            </xpath>
         </field>
     </record>
 
