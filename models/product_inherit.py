@@ -255,9 +255,22 @@ class ProductTemplate(models.Model):
                 },
             }
 
+    def onchange_check_duplicate_tags(self):
+        if self.product_attr_tags:
+            a = []
+            for tag in self.product_attr_tags:
+                a.append(tag.attr_id.id)
+            b = set(a)
+            if len(a) != len(b):
+                return False
+
+
+
     # def action_check_duplicate_code(self):
-    #     if self.product_attr_tags != False:
-    #         return True
+    #     if self.product_attr_tags:
+    #         for tag in self.product_attr_tags:
+    #             tag.
+
 
     @api.model
     def create(self, vals):
@@ -994,7 +1007,7 @@ class SaleOrderLine(models.Model):
     seq_cus = fields.Integer(string="STT", readonly=True)
     # virtual_available = fields.Float(string="Khả dụng", related="product_tmpl_id.virtual_available")
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="_virtual_qty")
-    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags", string="Thuộc tính")
+    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_template_id.product_attr_tags", string="Thuộc tính")
     cus_discount = fields.Float(string='C.Khấu ($)')
     # rename = fields.Boolean(string=False)
     old_price_unit = fields.Float(string='Đơn giá', readonly=False)
@@ -1479,6 +1492,7 @@ class StockMoveLine(models.Model):
     total_amount = fields.Float(string="Thành tiền", compute="_computed_lst_price")
     purchase_price = fields.Float(string="Chi phí", compute="_computed_lst_price")
     seq_cus = fields.Integer(string="STT", readonly=True)
+    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags",string="Thuộc tính")
 
     def _computed_lst_price(self):
         for line in self:
@@ -1488,8 +1502,7 @@ class StockMoveLine(models.Model):
             total_amount = 0
             purchase_price = 0
             if sale_id:
-                product_tmpl_id = self.env['sale.order.line'].search([('order_id', '=', sale_id.id),
-                                                            ('product_template_id', '=', line.product_id.id)], limit=1)
+                product_tmpl_id = self.product_id.product_tmpl_id
                 price_unit = product_tmpl_id.price_unit
                 purchase_price = product_tmpl_id.purchase_price
                 if product_tmpl_id.product_uom_qty:
@@ -1506,6 +1519,8 @@ class StockMove(models.Model):
     _inherit = 'stock.move'
 
     prod_image = fields.Binary(string="Ảnh sản phẩm", related="product_tmpl_id.image_1920")
+    attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags",
+                                      string="Thuộc tính")
 
 class StockLandedCost(models.Model):
     _inherit = 'stock.landed.cost'

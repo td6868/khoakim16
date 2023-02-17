@@ -232,7 +232,7 @@
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}"/>
             </xpath>
 
-            <xpath expr="//button[@name='action_preview_sale_order']" position="replace">
+            <xpath expr="//button[@name='action_preview_sale_order']" position="before">
                 <button name="%(action_report_saleorder_customize)d" type="action" class="oe_stat_button" icon="fa-globe icon">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_text">In báo giá</span>
@@ -789,6 +789,12 @@
             </xpath>
             <xpath expr="//field[@name='move_ids_without_package']/form//field[@name='product_id']" position="before">
                 <field name="prod_image" widget="image" options="{'preview_image': 'image_1920', 'zoom': true, 'zoom_delay': 1000}" class="img img-fluid w-50"/>
+            </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']/tree//field[@name='product_id']" position="after">
+                <field name="attr_value_ids" widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']/form//field[@name='product_id']" position="after">
+                <field name="attr_value_ids" widget="many2many_tags"/>
             </xpath>
 
         </field>
