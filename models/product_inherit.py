@@ -130,9 +130,6 @@ class ProductTemplate(models.Model):
     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_code', store=True)
     wp_ok = fields.Boolean(string="Khả dụng ở website")
     prod_code = fields.Char(string="Mã SP/NSX", required=True)
-    product_attr_tags = fields.Many2many("product.template.attr.value",
-                                         string="Giá trị thuộc tính",
-                                         required=True)
     display_name = fields.Char(string="Tên hiển thị", compute="_new_display_name")
     sale_ok = fields.Boolean('Có thể bán', default=False)
     purchase_ok = fields.Boolean('Có thể mua', default=False)
@@ -142,6 +139,16 @@ class ProductTemplate(models.Model):
     url_img4 = fields.Char(string="URL Ảnh 4")
     url_img5 = fields.Char(string="URL Ảnh 5")
     # product_ok = fields.Boolean('Là sản phẩm', default=False)
+
+    def _tags_domain(self):
+        domain = []
+        if self.product_attr_tags:
+            domain = [('attr_id','not in', self.product_attr_tags.attr_id)]
+        return domain
+
+    product_attr_tags = fields.Many2many("product.template.attr.value",
+                                         string="Giá trị thuộc tính",
+                                         required=True, domain='_tags_domain')
 
     @api.depends('name', 'product_attr_tags')
     def _new_display_name(self):
@@ -255,14 +262,15 @@ class ProductTemplate(models.Model):
                 },
             }
 
-    def onchange_check_duplicate_tags(self):
-        if self.product_attr_tags:
-            a = []
-            for tag in self.product_attr_tags:
-                a.append(tag.attr_id.id)
-            b = set(a)
-            if len(a) != len(b):
-                return False
+    # def onchange_check_duplicate_tags(self):
+    #     if self.product_attr_tags:
+    #         a = []
+    #         for tag in self.product_attr_tags:
+    #             a.append(tag.attr_id.id)
+    #         b = set(a)
+    #         if len(a) != len(b):
+    #             return False
+    #         return True
 
 
 
