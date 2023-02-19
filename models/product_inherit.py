@@ -127,7 +127,7 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     url_img = fields.Char(string="URL Ảnh 1")
-    default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_code', store=True)
+    default_code = fields.Char(string="Mã nội bộ", store=True)
     wp_ok = fields.Boolean(string="Khả dụng ở website")
     prod_code = fields.Char(string="Mã SP/NSX", required=True)
     display_name = fields.Char(string="Tên hiển thị", compute="_new_display_name")
@@ -140,27 +140,22 @@ class ProductTemplate(models.Model):
     url_img5 = fields.Char(string="URL Ảnh 5")
     # product_ok = fields.Boolean('Là sản phẩm', default=False)
 
-    def _tags_domain(self):
-        domain = []
-        if self.product_attr_tags:
-            domain = [('attr_id','not in', self.product_attr_tags.attr_id)]
-        return domain
-
     product_attr_tags = fields.Many2many("product.template.attr.value",
                                          string="Giá trị thuộc tính",
-                                         required=True, domain='_tags_domain')
+                                         required=True)
 
     @api.depends('name', 'product_attr_tags')
     def _new_display_name(self):
         display_name = ''
-        if self.name:
-            display_name = self.name
-            if self.product_attr_tags:
-                display_name = display_name + " ( "
-                for tag in self.product_attr_tags:
-                    display_name += tag.display_name + " "
-                display_name = display_name + ")"
-        self.display_name = display_name
+        for rec in self:
+            if rec.name:
+                display_name = rec.name
+                if rec.product_attr_tags:
+                    display_name = display_name + " ( "
+                    for tag in rec.product_attr_tags:
+                        display_name += tag.name + " "
+                    display_name = display_name + ")"
+            rec.display_name = display_name
 
     def purchase_create_temp(self):
         if self.env.company.purc_comp_id:
@@ -177,15 +172,16 @@ class ProductTemplate(models.Model):
 
     # def change_name(self):
 
-    @api.depends('categ_id', 'prod_code')
     def _gen_product_code(self):
         for prod in self:
             default_code = prod.prod_code or ''
             if prod.categ_id:
                 default_code = '%s%s' % (prod.categ_id.cate_code or '', prod.prod_code or '')
-
-            for tag in prod.product_attr_tags:
-                default_code += tag.acode
+            try:
+                for tag in prod.product_attr_tags:
+                    default_code += '%s' % (tag.acode)
+            except:
+                pass
 
             prod.default_code = default_code
 
@@ -272,8 +268,6 @@ class ProductTemplate(models.Model):
     #             return False
     #         return True
 
-
-
     # def action_check_duplicate_code(self):
     #     if self.product_attr_tags:
     #         for tag in self.product_attr_tags:
@@ -288,6 +282,7 @@ class ProductTemplate(models.Model):
         check_pass = self.check_perm_product_temp()
         if check_pass:
             self.write({'appr_state': True})
+        self._gen_product_code()
         return rec
 
 # class ProductAttributeValues(models.Model):
@@ -1188,10 +1183,10 @@ class SaleOrder(models.Model):
             for l in self.order_quick_ids:
                 if l.is_display:
                     data['seq_cus'] = i
+                    i += 1
                 else:
                     data['seq_cus'] = 0
                 l.write(data)
-                i += 1
         except:
             pass
 
