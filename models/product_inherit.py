@@ -127,7 +127,7 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     url_img = fields.Char(string="URL Ảnh 1")
-    default_code = fields.Char(string="Mã nội bộ", store=True)
+    default_code = fields.Char(string="Mã nội bộ", compute="_gen_product_code")
     wp_ok = fields.Boolean(string="Khả dụng ở website")
     prod_code = fields.Char(string="Mã SP/NSX", required=True)
     display_name = fields.Char(string="Tên hiển thị", compute="_new_display_name")
@@ -172,9 +172,11 @@ class ProductTemplate(models.Model):
 
     # def change_name(self):
 
+    @api.constrains("prod_code", "categ_id", "product_attr_tags")
     def _gen_product_code(self):
         for prod in self:
             default_code = prod.prod_code or ''
+
             if prod.categ_id:
                 default_code = '%s%s' % (prod.categ_id.cate_code or '', prod.prod_code or '')
             try:
@@ -182,7 +184,6 @@ class ProductTemplate(models.Model):
                     default_code += '%s' % (tag.acode)
             except:
                 pass
-
             prod.default_code = default_code
 
     # @api.onchange('url_img')
@@ -254,25 +255,31 @@ class ProductTemplate(models.Model):
             return {
                 'warning': {
                     'title': ('Lỗi người dùng'),
-                    'message': (("Người dùng không được quyền truy cập"))
+                    'message': ("Người dùng không được quyền truy cập")
                 },
             }
 
-    # def onchange_check_duplicate_tags(self):
-    #     if self.product_attr_tags:
-    #         a = []
-    #         for tag in self.product_attr_tags:
-    #             a.append(tag.attr_id.id)
-    #         b = set(a)
-    #         if len(a) != len(b):
-    #             return False
-    #         return True
+    def check_duplicate_tags(self, attrs):
+        for attr in attrs:
+            if (attrs.count(attr) > 1):
+                return attr
+        return False
 
-    # def action_check_duplicate_code(self):
-    #     if self.product_attr_tags:
-    #         for tag in self.product_attr_tags:
-    #             tag.
-
+    @api.onchange('product_attr_tags')
+    def action_check_duplicate_code(self):
+        for rec in self:
+            if rec.product_attr_tags:
+                attrs = []
+                for tag in rec.product_attr_tags:
+                    attrs.append(tag.attr_id)
+                check = rec.check_duplicate_tags(attrs)
+                if check:
+                    return {
+                                'warning': {
+                                    'title': ('Lỗi khai báo sản phẩm'),
+                                    'message': (_("Vui lòng kiểm tra thuộc tính %s đã xuất hiện") % (check.name))
+                                    },
+                            }
 
     @api.model
     def create(self, vals):
@@ -282,7 +289,11 @@ class ProductTemplate(models.Model):
         check_pass = self.check_perm_product_temp()
         if check_pass:
             self.write({'appr_state': True})
-        self._gen_product_code()
+        # self._gen_product_code()
+        return rec
+
+    def write(self, vals):
+        rec = super(ProductTemplate, self).write(vals)
         return rec
 
 # class ProductAttributeValues(models.Model):
