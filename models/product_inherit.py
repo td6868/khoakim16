@@ -87,7 +87,7 @@ class AccountMove(models.Model):
         ('2', 'Ưu tiên'),
     ], string='Múc độ ưu tiên', default='1', tracking=True)
     shipping_method = fields.Char(string="Phương thức vận chuyển", tracking=True)
-    pst_by_word = fields.Char(string="Số tiền bằng chữ", compute='_compute_subtotal_word')
+    pst_by_word = fields.Char(string="Số tiền bằng chữ")
 
     # ap dung thue, lam tron, stt
     def apply_all_line(self):
@@ -98,7 +98,7 @@ class AccountMove(models.Model):
             })
             i += 1
 
-    @api.depends('amount_total')
+    @api.constrains('amount_total')
     def _compute_subtotal_word(self):
         if self.amount_total:
             pst_word = n2w(str(self.amount_total/10))
@@ -169,6 +169,15 @@ class ProductTemplate(models.Model):
             self.update({
                 "seller_id": data,
             })
+
+    def _get_qty_available(self):
+        self.ensure_one()
+        qty_available = self.qty_available
+        uom_name = self.uom_id.name
+        return {
+            'qty_available': qty_available,
+            'uom_name': uom_name
+        }
 
     # def change_name(self):
 
@@ -1079,7 +1088,7 @@ class SaleOrder(models.Model):
         track_sequence=3, default='draft')
     shipping_method = fields.Many2one('delivery.carrier', string="Vận chuyển", track_visibility='onchange')
     sm_signture = fields.Binary(string="Chữ ký NVKD", related="user_id.sign_signature")
-    pst_by_word = fields.Char(string="Số tiền bằng chữ", compute="_compute_subtotal_word")
+    pst_by_word = fields.Char(string="Số tiền bằng chữ")
     taxes_ids_all = fields.Many2many("account.tax", string="Thuế áp dụng")
     round_price = fields.Boolean(string="Làm tròn giá", default=False)
     change_tax = fields.Boolean(default=False)
@@ -1126,6 +1135,7 @@ class SaleOrder(models.Model):
         self.write(data)
 
     # số tiền bằng chữ
+    @api.constrains('pst_by_word')
     def _compute_subtotal_word(self):
         pst_by_word = ''
         if self.amount_total:

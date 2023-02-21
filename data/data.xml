@@ -147,8 +147,39 @@
         </record>
 
         <!--    inherit template-->
-        <template id="">
+        <template id="configure_optional_products_inherit_kk"
+                  inherit_id="sale_product_configurator.configure_optional_products">
+            <xpath expr="//thead//tr//th[3]" position="after">
+                <th class="text-center th-available-qty"><span class='label'>Tồn kho</span></th>
+            </xpath>
 
+            <xpath expr="//tbody//tr//t[2]" position="after">
+                <t t-set="qty_available"
+                   t-value="product.product_tmpl_id._get_qty_available()"/>
+            </xpath>
+
+            <xpath expr="//tbody//tr//td[@class='text-center td-qty']" position="after">
+                <th class="text-center td-available-qty">
+                    <t t-out="qty_available['qty_available']" />
+                    <t t-out="qty_available['uom_name']" />
+                </th>
+            </xpath>
+        </template>
+
+        <template id="optional_product_items_inherit_kk"
+                  inherit_id="sale_product_configurator.optional_product_items">
+            
+            <xpath expr="//t//t[2]//t[2]" position="after">
+                <t t-set="qty_available"
+                   t-value="product.product_tmpl_id._get_qty_available()"/>
+            </xpath>
+            
+            <xpath expr="//t//t[2]//tr//td[3]" position="after">
+                <th class="text-center td-available-qty">
+                    <t t-out="qty_available['qty_available']" />
+                    <t t-out="qty_available['uom_name']" />
+                </th>
+            </xpath>
         </template>
 
     </data>
