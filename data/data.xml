@@ -146,6 +146,11 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <!--    inherit template-->
+        <template id="">
+
+        </template>
+
     </data>
 
     <data noupdate="1">

@@ -914,6 +914,7 @@
         </field>
     </record>
 
+
 <!--    <record id="product_supplierinfo_tree_view_inherit" model="ir.ui.view">-->
 <!--        <field name="name">product_supplierinfo_tree_view_inherit</field>-->
 <!--        <field name="model">product.supplierinfo</field>-->
