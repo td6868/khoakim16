@@ -1,0 +1,110 @@
+<odoo>
+    <data>
+        <!--    inherit template-->
+<!--        <template id="configure_optional_products_inherit_kk"-->
+<!--                  inherit_id="sale_product_configurator.configure_optional_products">-->
+<!--            <xpath expr="//thead//tr//th[3]" position="after">-->
+<!--                <th class="text-center th-available-qty"><span class='label'>Tồn kho</span></th>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//tbody//tr//t[2]" position="after">-->
+<!--                <t t-set="qty_available"-->
+<!--                   t-value="product._get_qty_available()"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//tbody//tr//td[@class='text-center td-qty']" position="after">-->
+<!--                <th class="text-center td-available-qty">-->
+<!--                    <t t-out="qty_available['qty_available']" />-->
+<!--                    <t t-out="qty_available['uom_name']" />-->
+<!--                </th>-->
+<!--            </xpath>-->
+<!--        </template>-->
+
+<!--        <template id="optional_product_items_inherit_kk"-->
+<!--                  inherit_id="sale_product_configurator.optional_product_items">-->
+
+<!--            <xpath expr="//t//t[2]//t[2]" position="after">-->
+<!--                <t t-set="qty_available"-->
+<!--                   t-value="product._get_qty_available()"/>-->
+<!--            </xpath>-->
+
+<!--            <xpath expr="//t//t[2]//tr//td[3]" position="after">-->
+<!--                <th class="text-center td-available-qty">-->
+<!--                    <t t-out="qty_available['qty_available']" />-->
+<!--                    <t t-out="qty_available['uom_name']" />-->
+<!--                </th>-->
+<!--            </xpath>-->
+<!--        </template>-->
+
+        <template id="portal_cn_purchase_orders_inherit" inherit_id="purchase.portal_my_purchase_orders">
+            <xpath expr="//t//t[4]//thead//tr//th[1]" position="after">
+                <th>
+                    <span class="d-none d-md-inline">Mã phiếu TQ</span>
+                </th>
+            </xpath>
+            <xpath expr="//t//t[4]//thead//tr//th[3]" position="after">
+                <th class="text-end">
+                    <span class='d-block d-md-inline'>Trạng thái</span>
+                </th>
+            </xpath>
+            <xpath expr="//t//t[4]//t//tr//td[1]" position="after">
+                <td>
+                    <a t-att-href="order.get_portal_url()"><t t-esc="order.vend_name"/></a>
+                </td>
+            </xpath>
+        </template>
+
+        <template id="portal_cn_purchase_orders" name="My Purchase Orders">
+          <t t-call="portal.portal_layout">
+              <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+              <t t-call="portal.portal_searchbar">
+                  <t t-set="title">Purchase Orders</t>
+              </t>
+              <t t-if="not cn_orders">
+                  <p>There are currently no purchase orders for your account.</p>
+              </t>
+              <t t-if="cn_orders" t-call="portal.portal_table">
+                  <thead>
+                      <tr class="active">
+                          <th>
+                              <span class='d-none d-md-inline'>Purchase Order #</span>
+                              <span class='d-block d-md-none'>Ref.</span>
+                          </th>
+                          <th class="text-end">
+                              <span class='d-none d-md-inline'>Confirmation Date</span>
+                          </th>
+<!--                          <th class="text-center"/>-->
+                          <th class="text-end">Tổng tiền</th>
+                          <th class="text-end"><span class='d-block d-md-inline'>Trạng thái</span></th>
+                      </tr>
+                  </thead>
+                  <t t-foreach="cn_orders" t-as="order">
+                      <tr>
+                          <td><a t-att-href="order.get_portal_url()"><t t-esc="order.name"/></a></td>
+                          <td><a t-att-href="order.get_portal_url()"><t t-esc="order.vend_name"/></a></td>
+                          <td class="text-end">
+                              <span t-field="order.date_approve" t-options="{'widget': 'date'}"/>&amp;nbsp;
+                              <span class='d-none d-md-inline' t-field="order.date_approve" t-options="{'time_only': True}"/>
+                          </td>
+                          <td class="text-end"><span t-field="order.amount_total"/></td>
+                          <td class="text-center">
+                              <span t-if="order.invoice_status == 'to invoice'" class="badge rounded-pill text-bg-info">
+                                  <i class="fa fa-fw fa-file-text" role="img" aria-label="Waiting for Bill" title="Waiting for Bill"></i><span class="d-none d-md-inline"> Waiting for Bill</span>
+                              </span>
+                              <span t-if="order.state == 'cancel'" class="badge rounded-pill text-bg-secondary">
+                                  <i class="fa fa-fw fa-remove" role="img" aria-label="Cancelled" title="Cancelled"></i><span class="d-none d-md-inline"> Cancelled</span>
+                              </span>
+                              <span t-if="order.state == 'done'" class="badge rounded-pill text-bg-success">
+                                  <i class="fa fa-fw fa-check" role="img" aria-label="Done" title="Done"></i><span class="d-none d-md-inline"> Done</span>
+                              </span>
+                          </td>
+                      </tr>
+                  </t>
+              </t>
+          </t>
+        </template>
+
+
+    </data>
+</odoo>

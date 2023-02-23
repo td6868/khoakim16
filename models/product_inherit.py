@@ -431,6 +431,15 @@ class ProductProduct(models.Model):
                                          string="Giá trị thuộc tính")
     display_name = fields.Char(string="Tên hiển thị", related="product_tmpl_id.display_name")
 
+    def _get_qty_available(self):
+        self.ensure_one()
+        qty_available = self.qty_available
+        uom_name = self.uom_id.name
+        return {
+            'qty_available': qty_available,
+            'uom_name': uom_name
+        }
+
 #     prod_code = fields.Char(string="Mã SP/SX", compute='_get_temp_prod')
 #     default_code = fields.Char(string="Mã nội bộ", compute='_gen_product_attrs_code', store=True)
 #     sku_wp = fields.Char(string="ID WP")

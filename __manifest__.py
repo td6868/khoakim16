@@ -23,6 +23,7 @@
         'report/customize_report.xml',
         'views/inherit_views.xml',
         'views/sale_line_report.xml',
+        'views/template.xml',
         'wizard/invoice_so.xml',
         'wizard/quick_create_product.xml',
         'wizard/std_price_change.xml',
