@@ -54,57 +54,46 @@
             </xpath>
         </template>
 
-        <template id="portal_cn_purchase_orders" name="My Purchase Orders">
-          <t t-call="portal.portal_layout">
-              <t t-set="breadcrumbs_searchbar" t-value="True"/>
-
-              <t t-call="portal.portal_searchbar">
-                  <t t-set="title">Purchase Orders</t>
-              </t>
-              <t t-if="not cn_orders">
-                  <p>There are currently no purchase orders for your account.</p>
-              </t>
-              <t t-if="cn_orders" t-call="portal.portal_table">
-                  <thead>
-                      <tr class="active">
-                          <th>
-                              <span class='d-none d-md-inline'>Purchase Order #</span>
-                              <span class='d-block d-md-none'>Ref.</span>
-                          </th>
-                          <th class="text-end">
-                              <span class='d-none d-md-inline'>Confirmation Date</span>
-                          </th>
-<!--                          <th class="text-center"/>-->
-                          <th class="text-end">Tổng tiền</th>
-                          <th class="text-end"><span class='d-block d-md-inline'>Trạng thái</span></th>
-                      </tr>
-                  </thead>
-                  <t t-foreach="cn_orders" t-as="order">
-                      <tr>
-                          <td><a t-att-href="order.get_portal_url()"><t t-esc="order.name"/></a></td>
-                          <td><a t-att-href="order.get_portal_url()"><t t-esc="order.vend_name"/></a></td>
-                          <td class="text-end">
-                              <span t-field="order.date_approve" t-options="{'widget': 'date'}"/>&amp;nbsp;
-                              <span class='d-none d-md-inline' t-field="order.date_approve" t-options="{'time_only': True}"/>
-                          </td>
-                          <td class="text-end"><span t-field="order.amount_total"/></td>
-                          <td class="text-center">
-                              <span t-if="order.invoice_status == 'to invoice'" class="badge rounded-pill text-bg-info">
-                                  <i class="fa fa-fw fa-file-text" role="img" aria-label="Waiting for Bill" title="Waiting for Bill"></i><span class="d-none d-md-inline"> Waiting for Bill</span>
-                              </span>
-                              <span t-if="order.state == 'cancel'" class="badge rounded-pill text-bg-secondary">
-                                  <i class="fa fa-fw fa-remove" role="img" aria-label="Cancelled" title="Cancelled"></i><span class="d-none d-md-inline"> Cancelled</span>
-                              </span>
-                              <span t-if="order.state == 'done'" class="badge rounded-pill text-bg-success">
-                                  <i class="fa fa-fw fa-check" role="img" aria-label="Done" title="Done"></i><span class="d-none d-md-inline"> Done</span>
-                              </span>
-                          </td>
-                      </tr>
-                  </t>
-              </t>
-          </t>
+        <template id="purchase_order_portal_content_cn_inherit" inherit_id="purchase.purchase_order_portal_content">
+            <xpath expr="//div[2]//section//table//thead//tr//th[1]" position="after">
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Giá trị</span>
+                </th>
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Khai hải quan</span>
+                </th>
+            </xpath>
+            <xpath expr="//div[2]//section//table//thead//tr//th[9]" position="after">
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Số ngày đặt hàng</span>
+                </th>
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Trạng thái</span>
+                </th>
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Ghi chú</span>
+                </th>
+            </xpath>
+            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[1]" position="after">
+                <td class="text-center">
+                    <span t-esc="'/n'.join(map(lambda x: (x.display_chinese_name or x.display_name), line.attr_value_ids))"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.declare_ok"/>
+                </td>
+            </xpath>
+            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[9]" position="after">
+                <td class="text-center">
+                    <span t-field="line.day_to_order"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.status_order"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.note"/>
+                </td>
+            </xpath>
         </template>
-
 
     </data>
 </odoo>

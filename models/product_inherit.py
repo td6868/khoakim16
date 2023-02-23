@@ -996,6 +996,15 @@ class PurchaseOrderLine(models.Model):
     # virtual_qty = fields.Char(string="TKKD/ TKTT", compute="purchase_virtual_qty")
     attr_value_ids = fields.Many2many('product.template.attr.value', related="product_id.product_attr_tags",string="Thuộc tính")
     attr_value_cn = fields.Char(string = "Giá trị")
+    status_order = fields.Selection([
+        ('waitting', 'Chờ đặt hàng'),
+        ('ordering', 'Đặt hàng'),
+        ('picking', 'Đợi sắp chuyến'),
+        ('done', 'Tới Bằng Tường'),
+    ],
+        string="Trạng thái", default='waitting')
+    day_to_order = fields.Integer(string="Ngày đặt hàng")
+    date_planed = fields.Datetime(string="Dự kiến")
     note = fields.Text(string="Ghi chú")
     old_price_unit = fields.Float(string="Đơn giá")
 
