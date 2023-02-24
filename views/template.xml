@@ -64,36 +64,68 @@
                 </th>
             </xpath>
             <xpath expr="//div[2]//section//table//thead//tr//th[9]" position="after">
-                <th class="text-center">
-                    <span class="d-none d-md-inline">Số ngày đặt hàng</span>
-                </th>
+<!--                <th class="text-center">-->
+<!--                    <span class="d-none d-md-inline">Số ngày đặt hàng</span>-->
+<!--                </th>-->
                 <th class="text-center">
                     <span class="d-none d-md-inline">Trạng thái</span>
                 </th>
                 <th class="text-center">
                     <span class="d-none d-md-inline">Ghi chú</span>
                 </th>
+                <th class="text-center"></th>
             </xpath>
             <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[1]" position="after">
                 <td class="text-center">
-                    <span t-esc="'/n'.join(map(lambda x: (x.display_chinese_name or x.display_name), line.attr_value_ids))"/>
+                    <span t-esc="', '.join(map(lambda x: (x.display_chinese_name or x.display_name), line.attr_value_ids))"/>
                 </td>
                 <td class="text-center">
                     <span t-field="line.declare_ok"/>
                 </td>
             </xpath>
             <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[9]" position="after">
-                <td class="text-center">
-                    <span t-field="line.day_to_order"/>
-                </td>
+<!--                <td class="text-center">-->
+<!--                    <span t-field="line.day_to_order"/>-->
+<!--                </td>-->
                 <td class="text-center">
                     <span t-field="line.status_order"/>
                 </td>
                 <td class="text-center">
                     <span t-field="line.note"/>
                 </td>
+                <td class="text-center">
+                    <div role="dialog" class="modal fade" id="modalupdate">
+                        <div class="modal-dialog">
+                            <form id="update" method="POST" t-att-data-order-id="line.id" t-att-data-token="order.access_token" class="js_accept_json modal-content js_website_submit_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <header class="modal-header">
+                                    <h4 class="modal-title">Xác nhận tình trạng</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </header>
+                                <main class="modal-body" id="sign-dialog">
+                                    <p>
+                                        <span>Vui lòng xác nhận tình trạng sản phẩm:</span>
+                                        <span>Mã sản phẩm:</span> <b t-field="line.name"/>
+                                        <span>Giá trị sản phẩm:</span> <b t-esc="', '.join(map(lambda x: (x.display_chinese_name or x.display_name), line.attr_value_ids))"/>
+                                        <span>Số lượng:</span> <b t-field="line.product_qty"/> <b t-field="line.product_uom.name"/>
+                                    </p>
+<!--                                    <t t-call="portal.update_form">-->
+<!--                                        <t t-set="call_url" t-value="line.get_portal_url(suffix='/update')"/>-->
+<!--                                        <t t-set="day_to_order"/>-->
+<!--                                    </t>-->
+                                </main>
+                            </form>
+                        </div>
+                    </div>
+
+                    <a role="button" class="btn btn-primary"
+                       data-bs-toggle="modal" data-bs-target="#modalupdate"
+                       href="#"><i class="fa fa-check"/> Cập nhật</a>
+                </td>
+
             </xpath>
         </template>
+
 
     </data>
 </odoo>
