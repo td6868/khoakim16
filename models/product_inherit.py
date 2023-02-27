@@ -1040,6 +1040,9 @@ class PurchaseOrderLine(models.Model):
                 "attr_value_cn": attr_value_cn,
             })
 
+    # def update_purchase_line_kk(self, data):
+    #
+
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
@@ -1106,7 +1109,7 @@ class SaleOrder(models.Model):
         track_sequence=3, default='draft')
     shipping_method = fields.Many2one('delivery.carrier', string="Vận chuyển", track_visibility='onchange')
     sm_signture = fields.Binary(string="Chữ ký NVKD", related="user_id.sign_signature")
-    pst_by_word = fields.Char(string="Số tiền bằng chữ")
+    pst_by_word = fields.Char(string="Số tiền bằng chữ", compute='_compute_subtotal_word')
     taxes_ids_all = fields.Many2many("account.tax", string="Thuế áp dụng")
     round_price = fields.Boolean(string="Làm tròn giá", default=False)
     change_tax = fields.Boolean(default=False)
@@ -1153,7 +1156,7 @@ class SaleOrder(models.Model):
         self.write(data)
 
     # số tiền bằng chữ
-    @api.constrains('pst_by_word')
+    @api.depends('all_total_amount', 'amount_total')
     def _compute_subtotal_word(self):
         pst_by_word = ''
         if self.amount_total:
@@ -1292,7 +1295,6 @@ class SaleOrder(models.Model):
             if invoice_id.state == 'posted' and invoice_id.amount_residual < invoice_id.amount_total:
                 return True
 
-
     #huy don va tra tien
     def cancel_cash_back(self):
         check = self.check_cash_back()
@@ -1423,7 +1425,6 @@ class SaleOrder(models.Model):
     def create(self, vals):
         rec = super(SaleOrder, self).create(vals)
         self.apply_all_line()
-        # self.apply_all_rename()
         return rec
 
     def write(self, vals):

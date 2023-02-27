@@ -98,3 +98,12 @@ class PurchaseChina(portal.CustomerPortal):
             'cn_purchase',
             'cn_orders'
         )
+
+    @http.route('/my/purchase/<int:order_id>/update-line/<int:line_id>', type='http', methods=['POST'], auth="user", website=True)
+    def update_line_purchase(self, order_id=None, line_id=None, status_order=None, day_to_order=None, access_token=None, **kw):
+        try:
+            order_sudo = self._document_check_access('purchase.order', order_id, access_token=access_token)
+        except (AccessError, MissingError):
+            return request.redirect('/my/purchase/<int:order_id>')
+
+        return Response(status=204)
