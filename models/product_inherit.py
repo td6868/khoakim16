@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import datetime
 import ssl
 from vietnam_number import n2w
 import string
@@ -10,6 +11,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import Warning, UserError
 from odoo.tools import config
 import requests
+from datetime import timedelta
 import base64
 import urllib.request
 import gspread
@@ -943,6 +945,38 @@ class PurchaseOrder(models.Model):
             else:
                 rec.state_stock_move = False
 
+    def get_selection_label(self, object, field_name, field_value):
+        return _(dict(self.env[object].fields_get(allfields=[field_name])[field_name]['selection'])[field_value])
+
+    def update_order_line_vendor(self, data):
+        line = self.order_line.filtered(lambda l: l.id == data[0])
+        name = self.env['res.users'].search([('id', '=', data[3])]).name
+        time = fields.Datetime.now()
+        wt = 0
+
+        if data[2] == 'ordering':
+            wt = int(data[1])+10
+        if data[2] == 'picking':
+            wt = 7
+        if data[2] == 'done':
+            wt = 3
+
+        date_planed = fields.Date.today() + timedelta(days=wt)
+        status = self.get_selection_label(object='purchase.order.line',
+                                          field_name='status_order',
+                                          field_value=data[2])
+
+        status_order = self.get_selection_label(object='purchase.order.line',
+                                          field_name='status_order',
+                                          field_value=line.status_order)
+
+        message = name + " : " + status_order + " => "+ status + " - " + str(time)
+        line.update({
+            "status_order": data[2],
+            "date_planed": date_planed,
+            "update_log": message
+        })
+
     @api.model
     def create(self, vals):
         rec = super(PurchaseOrder, self).create(vals)
@@ -1002,9 +1036,10 @@ class PurchaseOrderLine(models.Model):
         ('picking', 'Đợi sắp chuyến'),
         ('done', 'Tới Bằng Tường'),
     ],
-        string="Trạng thái", default='waitting')
+        string="Trạng thái", default='waitting', tracking=True)
     day_to_order = fields.Integer(string="Ngày đặt hàng")
     date_planed = fields.Datetime(string="Dự kiến")
+    update_log = fields.Text(string="Lịch sử")
     note = fields.Text(string="Ghi chú")
     old_price_unit = fields.Float(string="Đơn giá")
 
@@ -1040,8 +1075,6 @@ class PurchaseOrderLine(models.Model):
                 "attr_value_cn": attr_value_cn,
             })
 
-    # def update_purchase_line_kk(self, data):
-    #
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'

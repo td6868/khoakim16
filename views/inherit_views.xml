@@ -399,21 +399,22 @@
 
             <xpath expr="//field[@name='order_line']/form//field[@name='product_qty']" position="before">
                 <field name="attr_value_ids" widget="many2many_tags"/>
+                <field name="status_order"/>
+                <field name="date_planed"/>
                 <field name="declare_ok"/>
                 <field name="qty_available"/>
-                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_qty']" position="before">
                 <field name="attr_value_ids" widget="many2many_tags"/>
+                <field name="status_order"/>
+                <field name="date_planed"/>
                 <field name="declare_ok"/>
                 <field name="qty_available"/>
-                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/kanban//field[@name='product_qty']" position="before">
                 <field name="declare_ok"/>
                 <field name="qty_available"/>
                 <field name="attr_value_ids" widget="many2many_tags"/>
-                <field name="attr_value_cn" invisible="1"/>
             </xpath>
             <xpath expr="//button[@name='print_quotation']" position="replace">
             </xpath>

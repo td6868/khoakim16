@@ -3,7 +3,7 @@
 
 import base64
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime,timedelta
 
 from odoo import http
 from odoo.exceptions import AccessError, MissingError
@@ -104,6 +104,8 @@ class PurchaseChina(portal.CustomerPortal):
         try:
             order_sudo = self._document_check_access('purchase.order', order_id, access_token=access_token)
         except (AccessError, MissingError):
-            return request.redirect('/my/purchase/<int:order_id>')
-
-        return Response(status=204)
+            return request.redirect('/my/purchase/%s' %(order_id))
+        user_id = request.uid
+        data = [line_id, day_to_order, status_order, user_id]
+        order_sudo.update_order_line_vendor(data)
+        return request.redirect('/my/purchase/%s' %(order_id))

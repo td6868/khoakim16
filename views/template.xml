@@ -60,20 +60,20 @@
                 </th>
             </xpath>
 
-            <xpath expr="//div[2]//section//table//thead//tr//th[5]" position="replace">
-            </xpath>
-
-            <xpath expr="//div[2]//section//table//thead//tr//th[8]" position="after">
-                <th class="text-center" type="hidden">
-                    <span class="d-none d-md-inline">Số ngày đặt hàng</span>
-                </th>
+            <xpath expr="//div[2]//section//table//thead//tr//th[9]" position="after">
                 <th class="text-center">
                     <span class="d-none d-md-inline">Trạng thái</span>
                 </th>
                 <th class="text-center">
                     <span class="d-none d-md-inline">Ghi chú</span>
                 </th>
+                <th class="text-center">
+                    <span class="d-none d-md-inline">Lịch sử</span>
+                </th>
                 <th class="text-center"></th>
+            </xpath>
+
+            <xpath expr="//div[2]//section//table//thead//tr//th[8]" position="replace">
             </xpath>
 
             <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[1]" position="after">
@@ -85,18 +85,15 @@
                 </td>
             </xpath>
 
-            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[5]" position="replace">
-            </xpath>
-
-            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[8]" position="after">
-                <td class="text-center" type="hidden">
-                    <span t-field="line.day_to_order"/>
-                </td>
+            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[9]" position="after">
                 <td class="text-center">
                     <span t-field="line.status_order"/>
                 </td>
                 <td class="text-center">
                     <span t-field="line.note"/>
+                </td>
+                <td class="text-center">
+                    <span t-field="line.update_log"/>
                 </td>
                 <td class="text-left">
                     <div role="dialog" class="modal fade" id="modalupdate">
@@ -130,8 +127,9 @@
 <!--                                        <t t-set="day_to_order"/>-->
 <!--                                    </t>-->
                                     <div>
-                                        <label class="col-form-label label-optional" for="day_to_order">Số ngày đặt hàng</label>
+                                        <label t-if="line.status_order == 'waitting'" class="col-form-label label-optional" for="day_to_order">Số ngày đặt hàng</label>
                                         <input type="number" name="day_to_order"
+                                               t-if="line.status_order == 'waitting'"
                                                t-attf-class="form-control"
                                                t-att-value="3" />
                                         <label class="col-form-label label-optional" for="status_order">Trạng thái</label>
@@ -162,6 +160,10 @@
                        href="#"><i class="fa fa-pencil"/></a>
                 </td>
 
+            </xpath>
+
+            <xpath expr="//div[2]//section//table//tbody//t[2]//tr//td[8]"
+                   position="replace">
             </xpath>
         </template>
 
